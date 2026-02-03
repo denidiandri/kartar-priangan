@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - KARTAR PRIANGAN</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="background: #f4f7f6; padding-bottom: 50px;">
+
+    <header>
+        <div class="container">
+            <div class="logo-area">
+                <h1>Panel Kontrol Admin</h1>
+            </div>
+            
+            <div class="hamburger" id="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="/">Lihat Web</a></li>
+                    <li><a href="/logout" style="color: #e74c3c;">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        
+        <section class="card-form" style="margin-bottom: 30px;">
+            <h3>⚙️ Pengaturan Profil & Kontak</h3>
+            <form action="/update-settings" method="POST">
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <div class="form-group">
+                            <label>Visi Organisasi</label>
+                            <textarea name="visi" id="set-visi" placeholder="Tulis visi..." style="height: 60px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Misi Organisasi</label>
+                            <textarea name="misi" id="set-misi" placeholder="Gunakan Enter untuk setiap poin misi..." style="height: 120px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;"></textarea>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; min-width: 300px;">
+                        <div class="form-group">
+                            <label>Alamat Sekretariat</label>
+                            <input type="text" name="alamat" id="set-alamat" placeholder="Jl. Raya Cikamurang...">
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <div class="form-group" style="flex:1;">
+                                <label>WhatsApp</label>
+                                <input type="text" name="whatsapp" id="set-wa">
+                            </div>
+                            <div class="form-group" style="flex:1;">
+                                <label>Email</label>
+                                <input type="email" name="email" id="set-email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Link Maps (Embed)</label>
+                            <input type="text" name="maps_link" id="set-maps">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Media Sosial</label>
+                    <textarea name="sosmed" id="set-sosmed" placeholder="Facebook: ... &#10;Tiktok: ..." style="height: 80px; width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Simpan Semua Perubahan</button>
+            </form>
+        </section>
+
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div class="card-form" style="flex: 1; min-width: 300px;">
+                <h3>📰 Berita & Info Kos Baru</h3>
+                <form action="/tambah-berita" method="POST" enctype="multipart/form-data">
+                    <div class="form-group"><input type="text" name="judul" placeholder="Judul Berita / Nama Kos" required></div>
+                    
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; color: #666;">Pilih Kategori:</label>
+                        <select name="kategori" id="kat-pilihan" required style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #f0f0f0;">
+                            <option value="umum">Berita Umum</option>
+                            <option value="loker">Lowongan Kerja</option>
+                            <option value="kegiatan">Kegiatan</option>
+                            <option value="kos">Info Kos-kosan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="group-harga" style="display: none;">
+                        <label style="font-size: 0.8rem; color: #e74c3c; font-weight: bold;">Harga Kos:</label>
+                        <input type="text" name="harga" placeholder="Contoh: Rp 500.000 / Bulan">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; color: #666;">Pilih Gambar:</label>
+                        <input type="file" name="gambar" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="isi" placeholder="Isi Berita / Fasilitas Kos" required style="height: 150px;"></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">Publish Sekarang</button>
+                </form>
+                
+                <div class="admin-table-wrapper" style="margin-top: 20px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Judul</th>
+                                <th>Kategori</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-berita"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-form" style="flex: 1; min-width: 300px;">
+                <h3>👥 Struktur Organisasi</h3>
+                <form action="/tambah-struktur" method="POST" enctype="multipart/form-data">
+                    <div class="form-group"><input type="text" name="nama" placeholder="Nama Lengkap" required></div>
+                    <div class="form-group"><input type="text" name="jabatan" placeholder="Jabatan" required></div>
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; color: #666;">Unggah Foto Profil:</label>
+                        <input type="file" name="foto" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Tambah Pengurus</button>
+                </form>
+
+                <div class="admin-table-wrapper" style="margin-top: 20px;">
+                    <table class="admin-table">
+                        <tbody id="tabel-struktur"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin-top: 40px;">📩 Kritik & Saran Warga</h3>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead><tr><th>Nama</th><th>Saran</th><th>Aksi</th></tr></thead>
+                <tbody id="tabel-saran"></tbody>
+            </table>
+        </div>
+    </main>
+
+   
+     <script src="/js/main.js"></script>
+    <script src="/js/admin-dashboard.js"></script>
+</body>
+</html>

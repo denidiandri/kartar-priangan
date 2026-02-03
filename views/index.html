@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KARTAR PRIANGAN - Home</title>
+    <link rel="stylesheet" href="/css/style.css">
+   
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo-area">
+                <img src="/images/logokartar.png" alt="Logo Kartar" class="logo-img">
+                <h1>KARTAR PRIANGAN</h1>
+            </div>
+            
+            <div class="hamburger" id="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/profil">Profil</a></li>
+                    
+                    <li class="dropdown">
+    <a href="#">Berita</a>
+    <ul class="dropdown-menu">
+        <li><a href="/kategori/umum">Umum</a></li>
+        <li><a href="/kategori/loker">Loker</a></li>
+        <li><a href="/kategori/kegiatan">Kegiatan</a></li>
+        <li><a href="/kos" style="color: #e74c3c; font-weight: bold;">Info Kos</a></li>
+    </ul>
+</li>
+
+                    <li><a href="/kontak">Kontak</a></li>
+                    <li><a href="/kritik">Kritik & Saran</a></li>
+                    <li id="menu-admin"><a href="/login">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h2>Selamat Datang di Portal Resmi Karang Taruna Priangan</h2>
+            <p>Wadah kreativitas, pengabdian, dan persatuan pemuda Desa Cikawung.</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <section class="latest-news-section" style="margin-top: 40px;">
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>Berita Terbaru</h3>
+                <a href="/berita-umum" style="color: #e74c3c; font-weight: bold; text-decoration: none;">Lihat Semua &rarr;</a>
+            </div>
+
+            <div id="home-news-grid" class="news-grid">
+                <p>Sedang memuat berita terbaru...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Karang Taruna Priangan. All Rights Reserved.</p>
+    </footer>
+
+   
+ <script src="/js/main.js"></script>
+    <script src="/js/index.js"></script>
+</body>
+</html>

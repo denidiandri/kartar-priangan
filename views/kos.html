@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info Kos - KARTAR PRIANGAN</title>
+    <link rel="stylesheet" href="/css/style.css">
+    
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo-area">
+                <img src="/images/logokartar.png" alt="Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;">
+                <h1 style="display: inline-block; vertical-align: middle;">KARTAR PRIANGAN</h1>
+            </div>
+
+            <div class="hamburger" id="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="/profil">PROFIL</a></li>
+                    <li class="dropdown">
+                        <a href="#">Berita</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/kategori/umum">Umum</a></li>
+                            <li><a href="/kategori/loker">Loker</a></li>
+                            <li><a href="/kategori/kegiatan">Kegiatan</a></li>
+                            <li><a href="/kos" style="color: #e74c3c; font-weight: bold;">Info Kos</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/kontak">KONTAK</a></li>
+                    <li><a href="/#kritik">KRITIK & SARAN</a></li>
+                    <li id="menu-auth"><a href="/login" style="color: #ff4d4d; font-weight: bold;">LOGIN</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 50px;">
+        <div style="border-left: 5px solid #e74c3c; padding-left: 15px; margin-bottom: 30px;">
+            <h2 style="text-transform: uppercase; letter-spacing: 1px;">Info Kos & Hunian</h2>
+        </div>
+
+        <div id="kos-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            <p style="text-align: center; grid-column: 1/-1; color: #666;">Memuat data kos...</p>
+        </div>
+    </main>
+
+    <footer style="background: #2c3e50; color: white; padding: 20px 0; text-align: center; margin-top: 50px;">
+        <p>&copy; 2026 Karang Taruna Priangan. All Rights Reserved.</p>
+    </footer>
+
+    
+    <script src="/js/main.js"></script>
+    <script src="/js/kos.js"></script>
+</body>
+</html>

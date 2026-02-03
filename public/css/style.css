@@ -1,0 +1,543 @@
+/* ===================================================
+   1. RESET & DASAR (Settingan Awal)
+   =================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: auto;
+    overflow: visible; /* Penting: Agar dropdown tidak terpotong */
+}
+
+/* ===================================================
+   2. HEADER & NAVIGASI UTAMA
+   =================================================== */
+header {
+    background: #2c3e50;
+    color: #fff;
+    padding: 1rem 0;
+    border-bottom: #e74c3c 3px solid;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    width: 50px;
+    height: auto;
+    margin-right: 15px;
+}
+
+header h1 {
+    font-size: 1.5rem;
+}
+
+/* List Menu Navigasi */
+header nav ul {
+    list-style: none;
+    display: flex;
+}
+
+header nav li {
+    margin-left: 20px;
+    position: relative; /* Patokan posisi dropdown menu */
+}
+
+header nav a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 10px 0;
+    display: inline-block;
+    transition: 0.3s;
+}
+
+header nav a:hover {
+    color: #e74c3c;
+}
+
+/* ===================================================
+   3. FITUR DROPDOWN (Sub-Menu Berita)
+   =================================================== */
+.dropdown-menu {
+    display: none; /* Sembunyi secara default */
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 3000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 4px;
+    top: 100%; 
+    left: 0;
+}
+
+.dropdown-menu li {
+    display: block !important;
+    margin-left: 0 !important;
+}
+
+.dropdown-menu li a {
+    color: #333 !important;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid #eee;
+    text-transform: none;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.dropdown-menu li a:hover {
+    background-color: #f4f4f4;
+    color: #e74c3c !important;
+}
+
+/* Tampilkan dropdown saat menu 'Berita' di-hover */
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+/* Icon panah kecil di samping tulisan Berita */
+.dropdown > a::after {
+    content: ' ▼';
+    font-size: 9px;
+    vertical-align: middle;
+}
+
+/* ===================================================
+   4. HALAMAN UTAMA (Hero Section & Berita)
+   =================================================== */
+.hero {
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/images/hero.jpg') no-repeat center center/cover;
+    min-height: 60vh;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.hero h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+/* Grid Kartu Berita */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 2rem 0;
+}
+
+.news-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.news-img-box { width: 100%; height: 200px; overflow: hidden; }
+.news-img-box img { width: 100%; height: 100%; object-fit: cover; }
+.news-info { padding: 20px; }
+
+/* ===================================================
+   5. HALAMAN PROFIL (Visi, Misi & Struktur)
+   =================================================== */
+.page-content { padding: 3rem 0; }
+
+.vision-mission-container {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin-bottom: 50px;
+}
+
+.vision-card, .mission-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 300px;
+    border-top: 4px solid #e74c3c;
+    text-align: center;
+}
+
+/* Grid Struktur Organisasi */
+.structure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+}
+
+.member-card {
+    background: #fff;
+    text-align: center;
+    padding: 30px;
+    border-radius: 8px;
+    border-top: 4px solid #2c3e50;
+}
+
+.member-card img {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+/* 6. HALAMAN KONTAK (Alamat & Maps)
+   =================================================== */
+.contact-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Default: 2 kolom (Kiri-Kanan) */
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.contact-info {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.info-item { margin-bottom: 20px; }
+.info-item h3 { color: #e74c3c; margin-bottom: 5px; }
+
+.contact-map {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    min-height: 300px; /* Biar peta punya tinggi yang jelas */
+}
+
+/* Tambahkan ini agar responsif di HP */
+@media (max-width: 768px) {
+    .contact-wrapper {
+        grid-template-columns: 1fr; /* Paksa jadi 1 kolom (Atas-Bawah) */
+    }
+
+    .contact-map iframe {
+        width: 100% !important; /* Pastikan peta selebar layar */
+        height: 300px; /* Atur tinggi peta di HP */
+    }
+}
+
+/* ===================================================
+   7. FORM (Kritik & Login)
+   =================================================== */
+.card-form, .login-card {
+    background: #fff;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-top: 6px solid #e74c3c;
+}
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    outline: none;
+}
+
+.btn-submit {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    width: 100%;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-submit:hover { background: #c0392b; }
+
+/* ===================================================
+   7.1. KHUSUS TABEL ADMIN (Dashboard)
+   =================================================== */
+.admin-table-wrapper {
+    width: 100%;
+    overflow-x: auto; 
+    margin-top: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+/* Jarak agar Header Tabel (Judul, Kategori, Aksi) tidak mepet */
+.admin-table th {
+    background-color: #f8f9fa;
+    color: #2c3e50;
+    padding: 15px; 
+    border-bottom: 2px solid #eee;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+/* Jarak agar isi data tidak mepet */
+.admin-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f1f1;
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Styling Label Kategori di dalam tabel */
+.admin-table td span {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #eef2f7;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+/* Warna tombol hapus */
+.btn-delete {
+    color: #e74c3c;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* ===================================================
+   8. RESPONSIVE MOBILE (Tampilan HP)
+   =================================================== */
+.hamburger {
+    display: none; /* Muncul hanya di layar kecil */
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.hamburger span {
+    display: block;
+    width: 25px; height: 3px;
+    background: #fff;
+}
+
+@media (max-width: 768px) {
+    /* 1. Tombol Hamburger Muncul */
+    .hamburger { 
+        display: flex; 
+    }
+
+    .dropdown-menu li a {
+        color: #ffffff !important; /* Paksa jadi putih */
+        padding: 12px 40px !important; /* Geser agak ke kanan supaya menjorok */
+        font-size: 0.9rem; /* Ukuran sedikit lebih kecil dari menu utama */
+        background: transparent; /* Pastikan gak ada background yang nabrak */
+    }
+
+    /* Warna saat sub-menu diklik/disentuh */
+    .dropdown-menu li a:active {
+        color: #e74c3c; /* Berubah merah pas disentuh */
+    }
+
+
+    /* 2. Navigasi jadi kolom ke bawah */
+    header nav {
+        display: none; /* Sembunyi sebelum diklik */
+        position: absolute;
+        top: 100%; 
+        left: 0; 
+        width: 100%;
+        background: #2c3e50;
+        padding: 10px 0;
+        z-index: 1000;
+    }
+
+    /* 3. INI KUNCINYA: Paksa menu berderet ke bawah, bukan ke samping */
+    header nav ul {
+        flex-direction: column; 
+        align-items: flex-start; /* Rata kiri */
+        width: 100%;
+        padding: 0;
+    }
+
+    header nav ul li {
+        width: 100%; /* Biar menunya selebar layar */
+        margin: 0;
+    }
+
+    header nav ul li a {
+        display: block;
+        padding: 15px 25px;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Kasih garis pembatas tipis */
+    }
+
+    /* 4. Munculkan saat hamburger diklik */
+    header nav.active {
+        display: block;
+    }
+
+    /* 5. Dropdown di HP agar tidak melayang */
+    .dropdown-menu {
+        position: static;
+        width: 100%;
+        background: #2c3e50;
+        display: none; /* Sembunyi dulu */
+        box-shadow: none;
+    }
+
+    .dropdown.show .dropdown-menu {
+        display: block; /* Muncul pas diklik */
+    }
+}
+
+/* ===================================================
+   9. FOOTER (Bagian Bawah)
+   =================================================== */
+footer {
+    background: #2c3e50;
+    color: #fff;
+    text-align: center;
+    padding: 2rem;
+    margin-top: 40px;
+}
+
+/* ===================================================
+   10. HALAMAN LOGIN KHUSUS
+   =================================================== */
+.login-body {
+    background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    background: #fff;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    text-align: center;
+    border-top: none; /* Menghapus garis merah atas agar lebih elegan */
+}
+
+.login-card img {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+.login-card h2 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.login-card p {
+    color: #777;
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+}
+
+/* Merapikan Input Login */
+.login-card .form-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+    transition: 0.3s;
+}
+
+.login-card input:focus {
+    border-color: #e74c3c;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.2);
+}
+
+/* Tombol Login */
+.btn-login {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+
+
+        /* Perbaikan agar Footer tetap di bawah menu kos*/
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+        main {
+            flex: 1;
+        }
+        /* Memastikan hamburger terlihat di HP */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex !important;
+            }
+        }
+   
