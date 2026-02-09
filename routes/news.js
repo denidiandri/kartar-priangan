@@ -1,8 +1,15 @@
 import express from 'express';
-const router = express.Router();
+import path from 'path'; // WAJIB ADA
+import fs from 'fs';   // WAJIB ADA
+import { fileURLToPath } from 'url';
 import { cekLogin } from '../middleware/authMiddleware.js';
 
+// Setting __dirname untuk ES Module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export default (db, upload) => {
+    const router = express.Router();
 
     // --- FITUR KRITIK & SARAN ---
     router.post('/kirim-saran', (req, res) => {
@@ -27,12 +34,8 @@ export default (db, upload) => {
     });
 
     router.post('/tambah-berita', cekLogin, upload.single('gambar'), (req, res) => {
-        // 1. Tangkap 'harga' dari form dashboard
         const { judul, isi, kategori, harga } = req.body; 
         const gambar = req.file ? `/images/${req.file.filename}` : '';
-        
-        // 2. Masukkan 'harga' ke dalam Query SQL
-        // Kita tambahkan 'harga' di kolom dan tambahkan satu tanda tanya (?) di values
         const query = "INSERT INTO berita (judul, isi, gambar, kategori, harga) VALUES (?, ?, ?, ?, ?)";
         
         db.query(query, [judul, isi, gambar, kategori, harga], (err) => {
@@ -44,27 +47,77 @@ export default (db, upload) => {
         });
     });
 
+    // PROSES HAPUS BERITA (VERSI BERSIH & FIX)
     router.get('/hapus-berita/:id', cekLogin, (req, res) => {
-        db.query("DELETE FROM berita WHERE id = ?", [req.params.id], () => res.redirect('/admin-dashboard'));
+        const id = req.params.id;
+
+        db.query("SELECT gambar FROM berita WHERE id = ?", [id], (err, results) => {
+            if (err) {
+                console.error("Gagal cari berita:", err);
+                return res.redirect('/admin-dashboard?error=db');
+            }
+
+            if (results.length > 0) {
+                const namaGambar = results[0].gambar; 
+                if (namaGambar) {
+                    const pathFisik = path.join(__dirname, '..', 'public', namaGambar);
+                    if (fs.existsSync(pathFisik)) {
+                        fs.unlinkSync(pathFisik);
+                        console.log(`✅ File Berita ${namaGambar} berhasil dihapus.`);
+                    }
+                }
+            }
+
+            db.query("DELETE FROM berita WHERE id = ?", [id], (err) => {
+                if (err) {
+                    console.error("Gagal hapus data:", err);
+                    return res.redirect('/admin-dashboard?error=delete');
+                }
+                res.redirect('/admin-dashboard?status=deleted');
+            });
+        });
     });
 
-    // --- FITUR STRUKTUR ---
+    // --- FITUR STRUKTUR  ---
     router.get('/api/struktur', (req, res) => {
-        db.query("SELECT * FROM struktur", (err, results) => res.json(results));
+        db.query("SELECT * FROM struktur", (err, results) => res.json(results || []));
     });
 
     router.post('/tambah-struktur', cekLogin, upload.single('foto'), (req, res) => {
         const { nama, jabatan } = req.body;
-        const foto = req.file ? `/images/${req.file.filename}` : ''; 
-        db.query("INSERT INTO struktur (nama, jabatan, foto) VALUES (?, ?, ?)", [nama, jabatan, foto], (err) => {
-            if (err) throw err;
-            res.send("<script>alert('Pengurus berhasil ditambahkan!'); window.location.href='/admin-dashboard';</script>");
+        
+        // Sesuaikan dengan folder asli lo
+        const fotoPath = req.file ? `/img/produk/${req.file.filename}`.trim() : ''; 
+        
+        db.query("INSERT INTO struktur (nama, jabatan, foto) VALUES (?, ?, ?)", [nama, jabatan, fotoPath], (err) => {
+            if (err) return res.send("Gagal simpan.");
+            res.send("<script>alert('Berhasil!'); window.location.href='/admin-dashboard';</script>");
         });
     });
 
     router.get('/hapus-struktur/:id', cekLogin, (req, res) => {
-        db.query("DELETE FROM struktur WHERE id = ?", [req.params.id], () => res.redirect('/admin-dashboard'));
+        const id = req.params.id;
+        
+        db.query("SELECT foto FROM struktur WHERE id = ?", [id], (err, results) => {
+            if (results.length > 0) {
+                const fotoDb = results[0].foto ? results[0].foto.trim() : null;
+                
+                if (fotoDb) {
+                    // path.join bakal nyari ke public/img/produk/namafile.png
+                    const pathFisik = path.join(__dirname, '..', 'public', fotoDb);
+                    
+                    if (fs.existsSync(pathFisik)) {
+                        fs.unlinkSync(pathFisik);
+                    }
+                }
+            }
+
+            db.query("DELETE FROM struktur WHERE id = ?", [id], () => {
+                res.redirect('/admin-dashboard?status=deleted');
+            });
+        });
     });
+
 
     // --- FITUR SETTINGS ---
     router.get('/api/settings', (req, res) => {
@@ -80,7 +133,7 @@ export default (db, upload) => {
         });
     });
 
-    // --- PERBAIKAN ROUTE BERITA & KATEGORI & KOS ---
+    // --- API FILTER ---
     router.get('/api/berita/kategori/:kategori', (req, res) => {
         db.query("SELECT * FROM berita WHERE kategori = ? ORDER BY id DESC", [req.params.kategori], (err, results) => {
             res.json(results || []);
@@ -94,18 +147,27 @@ export default (db, upload) => {
     });
 
     // API khusus ambil data kos
-// API khusus ambil data kos
     router.get('/api/kos', (req, res) => {
-        // Gunakan LOWER supaya tidak masalah kalau di DB nulisnya 'Kos' (huruf besar)
-        const query = "SELECT * FROM berita WHERE LOWER(kategori) = 'kos' OR LOWER(kategori) = 'kos-kosan' ORDER BY tanggal DESC";
+        const query = "SELECT * FROM berita WHERE kategori LIKE '%kos%' ORDER BY tanggal DESC";
         db.query(query, (err, results) => {
-            if (err) {
-                console.error("EROR DATABASE KOS:", err);
-                return res.json([]);
-            }
-            // --- INI UNTUK CEK DI TERMINAL ---
-            console.log("Jumlah data kos yang ditemukan di DB:", results.length);
-            // ---------------------------------
+            if (err) return res.json([]);
+            res.json(results);
+        });
+    });
+
+    // API UNTUK HOME (6 TERBARU) & LIHAT SEMUA
+    router.get('/api/berita-terbaru', (req, res) => {
+        const query = "SELECT * FROM berita ORDER BY tanggal DESC LIMIT 6";
+        db.query(query, (err, results) => {
+            if (err) return res.json([]);
+            res.json(results);
+        });
+    });
+
+    router.get('/api/berita-semua', (req, res) => {
+        const query = "SELECT * FROM berita ORDER BY tanggal DESC";
+        db.query(query, (err, results) => {
+            if (err) return res.json([]);
             res.json(results);
         });
     });

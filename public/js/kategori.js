@@ -1,7 +1,12 @@
 // 1. Ambil URL Path
 const path = window.location.pathname;
-const slug = path.split('/').pop(); // Bisa jadi 'umum' atau angka '3'
+let slug = path.split('/').pop(); 
 const container = document.getElementById('konten-berita');
+
+// Cek jika buka langsung lewat /kos (slug kosong atau 'kos')
+if (!slug || path === '/kos') {
+    slug = 'kos';
+}
 
 // 2. CEK: Apakah ini halaman baca berita atau daftar kategori?
 if (path.includes('baca-berita')) {
@@ -27,13 +32,24 @@ if (path.includes('baca-berita')) {
         });
 } else {
     // --- MODE DAFTAR KATEGORI ---
-    document.getElementById('judul-kategori').innerText = "Kategori: " + slug;
     
-    fetch(`/api/berita/kategori/${slug}`)
+    // Tentukan Judul Header
+    let judulHeader = "Kategori: " + slug;
+    if (slug === 'kos') judulHeader = "Info Kos-kosan";
+    if (slug === 'semua') judulHeader = "Semua Berita Terbaru";
+    
+    document.getElementById('judul-kategori').innerText = judulHeader;
+    
+    // Pilih API yang mau dipanggil
+    let apiUrl = `/api/berita/kategori/${slug}`;
+    if (slug === 'kos') apiUrl = '/api/kos';
+    if (slug === 'semua') apiUrl = '/api/berita-semua';
+    
+    fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
-            if(data.length === 0) {
-                container.innerHTML = "<p style='grid-column: 1/-1; text-align: center; padding: 100px 20px; color: #666;'>Belum ada berita di kategori ini.</p>";
+            if(!data || data.length === 0) {
+                container.innerHTML = "<p style='grid-column: 1/-1; text-align: center; padding: 100px 20px; color: #666;'>Belum ada berita untuk ditampilkan.</p>";
                 return;
             }
             container.innerHTML = '';
@@ -45,6 +61,7 @@ if (path.includes('baca-berita')) {
                         </div>
                         <div class="news-info">
                             <small style="color: #e74c3c; font-weight: bold;">${i.kategori.toUpperCase()}</small>
+                            ${i.harga ? `<br><small style="color: #27ae60; font-weight: bold;">${i.harga}</small>` : ''}
                             <h3>${i.judul}</h3>
                             <p>${i.isi.substring(0, 100)}...</p>
                             <a href="/baca-berita/${i.id}" class="btn-read-more">Baca Selengkapnya</a>
@@ -52,5 +69,6 @@ if (path.includes('baca-berita')) {
                     </div>
                 `;
             });
-        });
+        })
+        .catch(err => console.error("Error load kategori:", err));
 }

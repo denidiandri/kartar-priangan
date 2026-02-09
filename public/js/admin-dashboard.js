@@ -1,9 +1,12 @@
+// admin-dashboard.js
 
-       
-        // LOGIC MUNCULKAN INPUT HARGA
-        const katPilihan = document.getElementById('kat-pilihan');
-        const groupHarga = document.getElementById('group-harga');
-        
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 1. LOGIC MUNCULKAN INPUT HARGA (Hanya jika kategori KOS) ---
+    const katPilihan = document.getElementById('kat-pilihan');
+    const groupHarga = document.getElementById('group-harga');
+    
+    if (katPilihan) {
         katPilihan.onchange = function() {
             if(this.value === 'kos') {
                 groupHarga.style.display = 'block';
@@ -11,42 +14,130 @@
                 groupHarga.style.display = 'none';
             }
         };
+    }
 
-        // Load Data Settings
-        fetch('/api/settings').then(res => res.json()).then(data => {
-            if(data) {
-                document.getElementById('set-alamat').value = data.alamat || '';
-                document.getElementById('set-wa').value = data.whatsapp || '';
-                document.getElementById('set-email').value = data.email || '';
-                document.getElementById('set-sosmed').value = data.sosmed || ''; 
-                document.getElementById('set-maps').value = data.maps_link || '';
-                document.getElementById('set-visi').value = data.visi || '';
-                document.getElementById('set-misi').value = data.misi || '';
+    // --- 2. LOAD DAFTAR PRODUK (LAPAK) ---
+    function muatProdukAdmin() {
+        fetch('/api/produk')
+            .then(res => res.json())
+            .then(data => {
+                const t = document.getElementById('tabel-produk'); 
+                if (!t) return;
+                t.innerHTML = ''; 
+                data.forEach(i => {
+                    t.innerHTML += `
+                    <tr>
+                        <td><strong>${i.nama_produk}</strong></td>
+                        <td><span style="background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${i.kategori}</span></td>
+                        <td>
+                            <button onclick="hapusProduk(${i.id})" style="background:none; border:none; color: red; cursor: pointer; font-weight: bold;">Hapus</button>
+                        </td>
+                    </tr>`;
+                });
+            })
+            .catch(err => console.error("Gagal muat produk:", err));
+    }
+
+    // --- 3. FUNGSI HAPUS GLOBAL ---
+
+// Hapus Produk
+window.hapusProduk = function(id) {
+    if(confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+        // Jika backend produk kamu pakai router.get('/hapus-produk/:id')
+        window.location.href = `/hapus-produk/${id}`;
+        
+        // JIKA kamu tetap mau pakai fetch DELETE (pastikan di backend ada router.delete('/api/produk/:id'))
+        /*
+        fetch(`/api/produk/${id}`, { method: 'DELETE' })
+            .then(res => res.ok ? muatProdukAdmin() : alert('Gagal hapus'));
+        */
+    }
+};
+
+// Hapus Berita / Kos
+window.hapusBerita = function(id) {
+    if(confirm('Hapus berita ini?')) {
+        // Sudah benar: diarahkan ke route GET di news.js
+        window.location.href = `/hapus-berita/${id}`;
+    }
+};
+
+// Hapus Struktur (PERBAIKAN DI SINI)
+window.hapusStruktur = function(id) {
+    if(confirm('Hapus anggota pengurus ini?')) {
+        // Kita ubah dari fetch DELETE menjadi redirect ke route GET yang sudah kita buat
+        window.location.href = `/hapus-struktur/${id}`;
+    }
+};
+
+// Hapus Saran
+window.hapusSaran = function(id) {
+    if(confirm('Hapus pesan saran ini?')) {
+        // Pastikan di backend ada router.get('/hapus-saran/:id') atau sesuaikan
+        window.location.href = `/hapus-saran/${id}`;
+    }
+};
+    // --- 4. LOAD DATA LAINNYA ---
+
+    // Load Settings
+    fetch('/api/settings').then(res => res.json()).then(data => {
+        if(data) {
+            document.getElementById('set-alamat').value = data.alamat || '';
+            document.getElementById('set-wa').value = data.whatsapp || '';
+            document.getElementById('set-email').value = data.email || '';
+            document.getElementById('set-sosmed').value = data.sosmed || ''; 
+            document.getElementById('set-maps').value = data.maps_link || '';
+            document.getElementById('set-visi').value = data.visi || '';
+            document.getElementById('set-misi').value = data.misi || '';
+        }
+    });
+
+    // Load Berita
+    fetch('/api/berita').then(res => res.json()).then(data => {
+        const t = document.getElementById('tabel-berita');
+        if(!t) return;
+        t.innerHTML = '';
+        data.forEach(i => {
+            t.innerHTML += `
+            <tr>
+                <td>${i.judul}</td>
+                <td><span style="background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${i.kategori}</span></td>
+                <td><button onclick="hapusBerita(${i.id})" style="background:none; border:none; color: red; cursor: pointer;">Hapus</button></td>
+            </tr>`;
+        });
+    });
+
+    // Load Struktur
+    fetch('/api/struktur').then(res => res.json()).then(data => {
+        const t = document.getElementById('tabel-struktur');
+        if(!t) return;
+        t.innerHTML = '';
+        data.forEach(i => {
+            t.innerHTML += `<tr><td>${i.nama} (${i.jabatan})</td><td><button onclick="hapusStruktur(${i.id})" style="background:none; border:none; color: red; cursor: pointer;">Hapus</button></td></tr>`;
+        });
+    });
+
+    // Load Saran
+    fetch('/api/saran').then(res => res.json()).then(data => {
+        const t = document.getElementById('tabel-saran');
+        if(!t) return;
+        t.innerHTML = '';
+        data.forEach(i => {
+            t.innerHTML += `<tr><td>${i.nama}</td><td>${i.isi_saran}</td><td><button onclick="hapusSaran(${i.id})" style="background:none; border:none; color: red; cursor: pointer;">Hapus</button></td></tr>`;
+        });
+    });
+
+    // --- 5. VALIDASI FOTO ---
+    const uploadField = document.getElementById("input-foto-produk");
+    if(uploadField) {
+        uploadField.onchange = function() {
+            if(this.files.length > 5) {
+               alert("Maaf, maksimal hanya boleh upload 5 foto saja.");
+               this.value = "";
             }
-        });
+        };
+    }
 
-        // Load Berita & Kos
-        fetch('/api/berita').then(res => res.json()).then(data => {
-            const t = document.getElementById('tabel-berita');
-            data.forEach(i => {
-                t.innerHTML += `
-                <tr>
-                    <td>${i.judul}</td>
-                    <td><span style="background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">${i.kategori}</span></td>
-                    <td><a href="/hapus-berita/${i.id}" style="color: red; text-decoration: none;" onclick="return confirm('Hapus data ini?')">Hapus</a></td>
-                </tr>`;
-            });
-        });
-
-        // Load Struktur
-        fetch('/api/struktur').then(res => res.json()).then(data => {
-            const t = document.getElementById('tabel-struktur');
-            data.forEach(i => t.innerHTML += `<tr><td>${i.nama} (${i.jabatan})</td><td><a href="/hapus-struktur/${i.id}" style="color: red; text-decoration: none;" onclick="return confirm('Hapus?')">Hapus</a></td></tr>`);
-        });
-
-        // Load Saran
-        fetch('/api/saran').then(res => res.json()).then(data => {
-            const t = document.getElementById('tabel-saran');
-            data.forEach(i => t.innerHTML += `<tr><td>${i.nama}</td><td>${i.isi_saran}</td><td><a href="/hapus-saran/${i.id}" style="color: red; text-decoration: none;" onclick="return confirm('Hapus?')">Hapus</a></td></tr>`);
-        });
-   
+    // Jalankan pertama kali
+    muatProdukAdmin();
+});

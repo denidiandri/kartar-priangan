@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lapak Warga - KARTAR PRIANGAN</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="logo-area">
+                <img src="/images/logokartar.png" alt="Logo Kartar" class="logo-img">
+                <h1>KARANG TARUNA</h1>
+            </div>
+            
+            <div class="hamburger" id="hamburger-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <nav id="nav-menu">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/profil">Profil</a></li>
+                    
+                    <li class="dropdown">
+                        <a href="#">Berita</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/kategori/umum">Umum</a></li>
+                            <li><a href="/kategori/loker">Loker</a></li>
+                            <li><a href="/kategori/kegiatan">Kegiatan</a></li>
+                            <li><a href="/kos" style="color: #e74c3c; font-weight: bold;">Info Kos</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="dropdown">
+                        <a href="#">Lapak Warga</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/lapak?kategori=Merchandise">Merchandise</a></li>
+                            <li><a href="/lapak?kategori=UMKM">Produk UMKM</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="/kontak">Kontak</a></li>
+                    <li><a href="/kritik">Kritik & Saran</a></li>
+                    <li id="menu-admin"><a href="/login">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2 style="margin-top: 30px;" id="judul-halaman">🛍️ Lapak Warga</h2>
+        <hr>
+        
+        <div class="produk-grid" id="container-produk">
+            </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Karang Taruna Priangan. All Rights Reserved.</p>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/lapak.js"></script>
+</body>
+</html>

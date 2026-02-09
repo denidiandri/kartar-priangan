@@ -123,6 +123,61 @@
             </div>
 
             <div class="card-form" style="flex: 1; min-width: 300px;">
+                <h3>🛍️ Kelola Lapak Warga (UMKM)</h3>
+                <form action="/tambah-produk" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="text" name="nama_produk" placeholder="Nama Produk (Contoh: Kaos Kartar)" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; color: #666;">Kategori Lapak:</label>
+                        <select name="kategori" required style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #f0f0f0;">
+                            <option value="Merchandise">Merchandise Official</option>
+                            <option value="UMKM">Produk UMKM Warga</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="number" name="harga" placeholder="Harga (Contoh: 50000)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="font-size: 0.8rem; color: #e74c3c; font-weight: bold;">WhatsApp Penjual:</label>
+                        <input type="text" name="no_wa" placeholder="Contoh: 62812345678" required>
+                        <small style="color: #666;">*Input manual nomor pemilik produk</small>
+                    </div>
+
+                    <div class="form-group">
+    <label style="font-size: 0.8rem; color: #666;">Foto Produk (Maksimal 5 Foto):</label>
+    <input type="file" name="foto" accept="image/*" multiple required id="input-foto-produk">
+    <small id="foto-help" style="display: block; color: #e67e22; font-size: 0.75rem; margin-top: 5px;">
+        *Pilih sekaligus maksimal 5 foto
+    </small>
+</div>
+
+                    <div class="form-group">
+                        <textarea name="deskripsi" placeholder="Deskripsi/Spesifikasi Produk..." required style="height: 100px;"></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit" style="background: #27ae60;">Tambah ke Katalog</button>
+                </form>
+
+                <div class="admin-table-wrapper" style="margin-top: 20px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Tipe</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-produk"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 30px;">
+            <div class="card-form" style="flex: 1; min-width: 300px;">
                 <h3>👥 Struktur Organisasi</h3>
                 <form action="/tambah-struktur" method="POST" enctype="multipart/form-data">
                     <div class="form-group"><input type="text" name="nama" placeholder="Nama Lengkap" required></div>
@@ -140,19 +195,20 @@
                     </table>
                 </div>
             </div>
-        </div>
 
-        <h3 style="margin-top: 40px;">📩 Kritik & Saran Warga</h3>
-        <div class="admin-table-wrapper">
-            <table class="admin-table">
-                <thead><tr><th>Nama</th><th>Saran</th><th>Aksi</th></tr></thead>
-                <tbody id="tabel-saran"></tbody>
-            </table>
+            <div class="card-form" style="flex: 1; min-width: 300px;">
+                <h3>📩 Kritik & Saran Warga</h3>
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead><tr><th>Nama</th><th>Saran</th><th>Aksi</th></tr></thead>
+                        <tbody id="tabel-saran"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </main>
 
-   
-     <script src="/js/main.js"></script>
+    <script src="/js/main.js"></script>
     <script src="/js/admin-dashboard.js"></script>
 </body>
 </html>

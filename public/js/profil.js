@@ -30,14 +30,28 @@ async function loadStruktur() {
 
         container.innerHTML = ''; 
         data.forEach(person => {
+            // 1. Ambil data foto dan bersihkan spasi (trim)
+            let rawPath = person.foto ? person.foto.trim() : '';
+            
+            // 2. LOGIC FIX: Ganti '/images/' menjadi '/img/produk/' 
+            // karena file kamu masuknya ke folder 'img/produk'
+            let fotoPath = rawPath.replace('/images/', '/img/produk/');
+
+            // 3. Jika path tidak diawali '/', tambahkan folder yang benar
+            if (fotoPath && !fotoPath.startsWith('/')) {
+                fotoPath = '/img/produk/' + fotoPath;
+            }
+
             container.innerHTML += `
                 <div class="member-card">
                     <div class="member-img">
-                        <img src="${person.foto || '/images/default-avatar.png'}" alt="${person.nama}">
+                        <img src="${fotoPath || '/img/produk/default.png'}" 
+                             alt="${person.nama}"
+                             onerror="this.onerror=null;this.src='/images/default-avatar.png';">
                     </div>
                     <div class="member-info">
-                        <h4>${person.nama}</h4>
-                        <p>${person.jabatan}</p>
+                        <h4 style="font-weight: bold; color: #333;">${person.nama}</h4>
+                        <p style="color: #e74c3c; font-weight: 600;">${person.jabatan}</p>
                     </div>
                 </div>
             `;
@@ -48,7 +62,6 @@ async function loadStruktur() {
         if(container) container.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Gagal memuat data.</p>';
     }
 }
-
 // Jalankan fungsi saat halaman siap
 document.addEventListener('DOMContentLoaded', () => {
     loadVisiMisi();
