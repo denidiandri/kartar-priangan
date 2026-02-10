@@ -1,11 +1,51 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. LOGIKA NAVIGASI & DROPDOWN (FIXED) ---
+    const hamburger = document.querySelector('.hamburger');
+    const nav = document.querySelector('nav');
+    const dropdowns = document.querySelectorAll('.dropdown');
+
+    if (hamburger) {
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nav.classList.toggle('active');
+        });
+    }
+
+    dropdowns.forEach(dd => {
+        dd.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                // Cek apakah elemen yang diklik memiliki menu di dalamnya
+                const hasMenu = this.querySelector('.dropdown-menu');
+                if (hasMenu) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Tutup dropdown lain yang sedang terbuka
+                    dropdowns.forEach(other => {
+                        if (other !== this) other.classList.remove('show');
+                    });
+
+                    // Munculkan menu dropdown ini
+                    this.classList.toggle('show');
+                }
+            }
+        });
+    });
+
+    // Klik di luar area menu untuk menutup otomatis
+    document.addEventListener('click', () => {
+        if (nav) nav.classList.remove('active');
+        dropdowns.forEach(dd => dd.classList.remove('show'));
+    });
+
+    // --- 2. LOGIKA LAPAK WARGA (AMBIL DATA API) ---
     const container = document.getElementById('container-produk');
     const judulHalaman = document.getElementById('judul-halaman');
 
     const urlParams = new URLSearchParams(window.location.search);
     const kategori = urlParams.get('kategori');
 
-    if (kategori) {
+    if (kategori && judulHalaman) {
         judulHalaman.innerText = `🛍️ Lapak Warga - ${kategori}`;
     }
 
@@ -17,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
+            if (!container) return;
             if (data.length === 0) {
                 container.innerHTML = `<p style="text-align:center; grid-column: 1/-1; padding: 40px;">Belum ada produk untuk kategori ${kategori || ''}.</p>`;
                 return;
@@ -37,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3>${p.nama_produk}</h3>
                         <p class="harga">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</p>
                         <p class="desc">${p.deskripsi.substring(0, 50)}${p.deskripsi.length > 50 ? '...' : ''}</p>
-                        
                         <div class="btn-wrapper">
                             <a href="https://wa.me/${p.no_wa}?text=Halo, saya tertarik dengan produk ${p.nama_produk}" 
                                class="button-beli" target="_blank" onclick="event.stopPropagation()">
@@ -54,11 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // FUNGSI UNTUK MODAL DETAIL
 function bukaDetail(p) {
     const fotoArray = p.foto.split(',');
-    
-    // Buat elemen modal
     const modal = document.createElement('div');
     modal.className = 'modal-detail';
-    modal.onclick = () => modal.remove(); // Klik luar untuk tutup
+    modal.onclick = () => modal.remove();
 
     modal.innerHTML = `
         <div class="modal-content" onclick="event.stopPropagation()">
