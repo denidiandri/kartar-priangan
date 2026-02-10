@@ -1167,3 +1167,92 @@ body {
 main {
     flex: 1;
 }
+
+
+/* ===================================================
+   HALAMAN BACA BERITA - FULL WIDTH & CLEAN
+   =================================================== */
+
+.read-news-wrapper {
+    max-width: 900px; /* Lebar artikel yang nyaman dibaca */
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.news-detail-full {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+}
+
+.news-main-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #004aad;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.news-meta-info {
+    margin-bottom: 25px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.badge-kat {
+    background: #e74c3c;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.news-date {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.news-image-main img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.news-body-content {
+    line-height: 1.8;
+    color: #334155;
+    font-size: 1.15rem;
+    white-space: pre-line; /* Penting! Menjaga spasi dan Enter dari admin dashboard */
+}
+
+.news-divider {
+    margin: 40px 0 20px 0;
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-back-link {
+    color: #004aad;
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.btn-back-link:hover {
+    color: #e74c3c;
+}
+
+/* Biar di HP gak terlalu lebar paddingnya */
+@media (max-width: 768px) {
+    .news-detail-full {
+        padding: 20px;
+    }
+    .news-main-title {
+        font-size: 1.6rem;
+    }
+}
