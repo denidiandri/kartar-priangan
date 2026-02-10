@@ -43,14 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // Hapus Produk
 window.hapusProduk = function(id) {
     if(confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-        // Jika backend produk kamu pakai router.get('/hapus-produk/:id')
-        window.location.href = `/hapus-produk/${id}`;
-        
-        // JIKA kamu tetap mau pakai fetch DELETE (pastikan di backend ada router.delete('/api/produk/:id'))
-        /*
         fetch(`/api/produk/${id}`, { method: 'DELETE' })
-            .then(res => res.ok ? muatProdukAdmin() : alert('Gagal hapus'));
-        */
+            .then(res => {
+                if(res.ok) {
+                    alert('Produk berhasil dihapus');
+                    // Panggil fungsi muat data lagi biar tabel update otomatis tanpa refresh
+                    location.reload(); 
+                } else {
+                    alert('Gagal menghapus produk');
+                }
+            })
+            .catch(err => console.error("Error:", err));
     }
 };
 

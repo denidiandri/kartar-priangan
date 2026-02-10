@@ -121,23 +121,3 @@ function bukaDetail(p) {
     document.body.appendChild(modal);
 }
 
-// FUNGSI UNTUK HAPUS PRODUK (TAMBAHKAN INI)
-function hapusProduk(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-        fetch(`/api/produk/${id}`, {
-            method: 'DELETE', // Menggunakan method DELETE agar sesuai standar API
-        })
-        .then(res => {
-            if (res.ok) {
-                alert('Produk berhasil dihapus!');
-                location.reload(); // Refresh halaman agar tabel terupdate
-            } else {
-                alert('Gagal menghapus produk. Cek koneksi atau login Anda.');
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Terjadi kesalahan server.');
-        });
-    }
-}
