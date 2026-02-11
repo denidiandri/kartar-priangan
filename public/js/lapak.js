@@ -4,33 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nav = document.querySelector('nav');
     const dropdowns = document.querySelectorAll('.dropdown');
 
-    if (hamburger) {
-        hamburger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            nav.classList.toggle('active');
-        });
-    }
-
-    dropdowns.forEach(dd => {
-        dd.addEventListener('click', function(e) {
-            if (window.innerWidth <= 768) {
-                // Cek apakah elemen yang diklik memiliki menu di dalamnya
-                const hasMenu = this.querySelector('.dropdown-menu');
-                if (hasMenu) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Tutup dropdown lain yang sedang terbuka
-                    dropdowns.forEach(other => {
-                        if (other !== this) other.classList.remove('show');
-                    });
-
-                    // Munculkan menu dropdown ini
-                    this.classList.toggle('show');
-                }
-            }
-        });
-    });
+   
 
     // Klik di luar area menu untuk menutup otomatis
     document.addEventListener('click', () => {

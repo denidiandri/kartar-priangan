@@ -4,31 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const nav = document.getElementById('nav-menu');
     const dropdowns = document.querySelectorAll('.dropdown');
 
-    if (hamburger && nav) {
-        hamburger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            nav.classList.toggle('active');
-        });
-    }
-
-    dropdowns.forEach(dd => {
-        dd.addEventListener('click', function(e) {
-            if (window.innerWidth <= 768) {
-                const subMenu = this.querySelector('.dropdown-menu');
-                if (subMenu) {
-                    if (e.target.tagName === 'A' && e.target.getAttribute('href') === '#') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        dropdowns.forEach(other => {
-                            if (other !== this) other.classList.remove('show');
-                        });
-                        this.classList.toggle('show');
-                    }
-                }
-            }
-        });
-    });
-
     document.addEventListener('click', () => {
         if (nav) nav.classList.remove('active');
         dropdowns.forEach(dd => dd.classList.remove('show'));
