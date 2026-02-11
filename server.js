@@ -50,18 +50,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// --- KONEKSI DATABASE ---
-const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'kartar_db',
-    port: process.env.DB_PORT || 3306
+// --- KONEKSI DATABASE (MENGGUNAKAN POOL) ---
+const db = mysql.createPool({
+    host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+    database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'kartar_db',
+    port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000
 });
 
-db.connect((err) => {
-    if (err) return console.error('Koneksi gagal: ' + err.stack);
-    console.log('✅ Server & DB Siap Beraksi!');
+// Tes koneksi Pool
+db.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Koneksi Database Gagal: ' + err.message);
+    } else {
+        console.log('✅ Database Terhubung (Pool Mode)!');
+        connection.release();
+    }
 });
 
 // --- PENGGUNAAN ROUTES (DIPERBAIKI) ---
