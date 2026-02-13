@@ -50,24 +50,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// --- KONEKSI DATABASE (MENGGUNAKAN POOL) ---
 const db = mysql.createPool({
-    host: process.env.MYSQLHOST || process.env.DB_HOST || 'shortline.proxy.rlwy.net',
-    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD,
-    database: process.env.MYSQLDATABASE || process.env.DB_NAME,
-    port: process.env.MYSQLPORT || process.env.DB_PORT || 17571,
+    // Jika di .env tidak ada, dia akan coba ke localhost
+    host: process.env.DB_HOST || 'localhost', 
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    // Ganti 17571 jadi 3306 karena ini port standar MySQL server
+    port: process.env.DB_PORT || 3306, 
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 5,
     queueLimit: 0,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000
 });
 
-// Tes koneksi Pool
+// --- TES KONEKSI DATABASE ---
 db.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Koneksi Database Gagal: ' + err.message);
+        // Cek apakah errornya: ECONNREFUSED (MySQL mati) atau ER_BAD_DB_ERROR (DB tidak ada)
     } else {
         console.log('✅ Database Terhubung (Pool Mode)!');
         connection.release();
