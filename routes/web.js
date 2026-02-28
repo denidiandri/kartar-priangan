@@ -64,6 +64,15 @@ export default (db) => {
         });
     });
 
+    // --- API SETTINGS (VISI, MISI, KONTAK) ---
+    // Tambahkan ini agar halaman profil dan kontak tidak 404
+    router.get('/api/settings', (req, res) => {
+        db.query("SELECT * FROM settings LIMIT 1", (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results[0] || {});
+        });
+    });
+
     // --- API STRUKTUR (FIX 404 & UPDATE) ---
     router.get('/api/struktur', (req, res) => {
         db.query("SELECT * FROM struktur ORDER BY id ASC", (err, results) => {
@@ -81,7 +90,7 @@ export default (db) => {
         });
     });
 
-    // RUTE PROSES UPDATE STRUKTUR (DIUBAH KE POST AGAR TIDAK DIBLOKIR HOSTING)
+    // RUTE PROSES UPDATE STRUKTUR
     router.post('/api/struktur/:id', cekLogin, (req, res) => {
         const id = req.params.id;
         const { nama, jabatan } = req.body;
@@ -107,7 +116,7 @@ export default (db) => {
         });
     });
 
-    // PROSES UPDATE BERITA (DIUBAH KE POST AGAR TIDAK DIBLOKIR HOSTING)
+    // PROSES UPDATE BERITA
     router.post('/api/berita/:id', cekLogin, (req, res) => {
         const id = req.params.id;
         const { judul, isi, kategori } = req.body;
@@ -156,4 +165,4 @@ export default (db) => {
     });
 
     return router;
-}; 
+};

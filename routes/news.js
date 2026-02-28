@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 export default (db, upload) => {
     const router = express.Router();
 
-    // --- FITUR KRITIK & SARAN ---
+    // --- 1. FITUR KRITIK & SARAN ---
     router.post('/kirim-saran', (req, res) => {
         const { nama, isi_saran } = req.body;
         db.query("INSERT INTO saran (nama, isi_saran) VALUES (?, ?)", [nama, isi_saran], (err) => {
@@ -26,17 +26,33 @@ export default (db, upload) => {
         });
     });
 
-    // --- FITUR BERITA ---
+    // --- 2. FITUR BERITA (API UNTUK FRONTEND) ---
     
-    // 1. Ambil semua berita (Untuk Home & Daftar Berita)
-    router.get('/api/berita', (req, res) => {
-        db.query("SELECT * FROM berita ORDER BY id DESC", (err, results) => {
-            if (err) return res.status(500).json(err);
-            res.json(results);
+    // Ambil Berita Terbaru (Limit 5 untuk Home)
+    router.get('/api/berita-terbaru', (req, res) => {
+        db.query("SELECT * FROM berita ORDER BY id DESC LIMIT 5", (err, results) => {
+            if (err) return res.status(500).json([]);
+            res.json(results || []);
         });
     });
 
-    // 2. Ambil berita berdasarkan kategori (FIX UNTUK LOKER/KEGIATAN)
+    // Ambil Semua Berita (Untuk slug 'semua')
+    router.get('/api/berita-semua', (req, res) => {
+        db.query("SELECT * FROM berita ORDER BY id DESC", (err, results) => {
+            if (err) return res.status(500).json([]);
+            res.json(results || []);
+        });
+    });
+
+    // Ambil Info Kos (Kategori spesifik kos)
+    router.get('/api/kos', (req, res) => {
+        db.query("SELECT * FROM berita WHERE kategori = 'kos' ORDER BY id DESC", (err, results) => {
+            if (err) return res.status(500).json([]);
+            res.json(results || []);
+        });
+    });
+
+    // Ambil berita berdasarkan kategori (Loker, Kegiatan, dll)
     router.get('/api/berita/kategori/:kat', (req, res) => {
         const kategori = req.params.kat;
         const sql = "SELECT * FROM berita WHERE kategori = ? ORDER BY id DESC";
@@ -46,16 +62,19 @@ export default (db, upload) => {
         });
     });
 
-    // 3. Ambil satu berita detail (Untuk modal edit)
+    // Ambil SATU berita detail (Dipakai Edit Admin & Baca Selengkapnya)
     router.get('/api/berita/:id', (req, res) => {
         const id = req.params.id;
         db.query("SELECT * FROM berita WHERE id = ?", [id], (err, results) => {
-            if (err) return res.status(500).json(err);
-            res.json(results[0] || {});
+            if (err) return res.status(500).json({ error: "Database error" });
+            if (results.length === 0) return res.status(404).json({ message: "Berita tidak ditemukan" });
+            res.json(results[0]);
         });
     });
 
-    // 4. Proses Tambah Berita
+    // --- 3. FITUR ADMIN (TAMBAH, UPDATE, HAPUS) ---
+
+    // Tambah Berita
     router.post('/tambah-berita', cekLogin, upload.single('gambar'), (req, res) => {
         const { judul, isi, kategori } = req.body; 
         const gambar = req.file ? `/images/${req.file.filename}` : '';
@@ -67,7 +86,7 @@ export default (db, upload) => {
         });
     });
 
-    // 5. Proses Update Berita
+    // Update Berita
     router.post('/api/berita/:id', cekLogin, (req, res) => {
         const { id } = req.params;
         const { judul, kategori, isi } = req.body;
@@ -77,7 +96,7 @@ export default (db, upload) => {
         });
     });
 
-    // 6. Hapus Berita
+    // Hapus Berita
     router.get('/hapus-berita/:id', cekLogin, (req, res) => {
         const id = req.params.id;
         db.query("SELECT gambar FROM berita WHERE id = ?", [id], (err, results) => {
