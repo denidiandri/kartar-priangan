@@ -16,7 +16,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// --- KONFIGURASI MULTER DINAMIS ---
+// --- KONFIGURASI MULTER (Wajib Ada Buat Upload Gambar) ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = 'public/img/produk/'; 
@@ -35,24 +35,25 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- MIDDLEWARE ---
-app.set('trust proxy', 1); // Wajib di hosting/cPanel agar session stabil
+// --- MIDDLEWARE UTAMA ---
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+
+// --- SESSION CONFIG ---
+app.set('trust proxy', 1); 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'kartar-priangan-rahasia',
     resave: false,
     saveUninitialized: false, 
     proxy: true,
+    name: 'kartar_sid',
     cookie: { 
         maxAge: 3600000,
-        secure: false, // Set ke true hanya jika sudah pakai HTTPS/SSL
+        secure: false,
         httpOnly: true,
         sameSite: 'lax'
     }
 }));
-
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); 
 
 // --- DATABASE CONNECTION ---
 const db = mysql.createPool({
@@ -60,34 +61,22 @@ const db = mysql.createPool({
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    port: process.env.DB_PORT || 3306, 
+    port: process.env.DB_PORT || 3306,
     waitForConnections: true,
-    connectionLimit: 5,
-    queueLimit: 0,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 10000
+    connectionLimit: 10
 });
 
-// Check database connection
-db.getConnection((err, connection) => {
-    if (err) {
-        console.error('❌ Koneksi Database Gagal: ' + err.message);
-    } else {
-        console.log('✅ Database Terhubung!');
-        connection.release();
-    }
-});
+// --- PENGGUNAAN ROUTES (URUTAN TERBAIK) ---
 
-// --- PENGGUNAAN ROUTES (URUTAN DIPERBAIKI) ---
-
-// 1. Auth Dulu (Biar rute login gak ketutup/404)
+// 1. News & API Dulu (Sertakan 'upload' agar bisa post gambar)
+app.use('/', newsRoutes(db, upload)); 
 app.use('/', authRoutes(db));
 
-// 2. Web Routes (API Settings/Struktur)
-app.use('/', webRoutes(db)); 
+// 2. File Statis (CSS, JS, Images)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// 3. News Routes (Berita & Upload)
-app.use('/', newsRoutes(db, upload)); 
+// 3. Web Routes (Halaman HTML)
+app.use('/', webRoutes(db)); 
 
 // --- JARING PENGAMAN 404 ---
 app.use((req, res) => {
@@ -96,5 +85,5 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server meluncur di port http://localhost:${PORT}`);
-}); 
+    console.log(`🚀 Server meluncur di port ${PORT}`);
+});
