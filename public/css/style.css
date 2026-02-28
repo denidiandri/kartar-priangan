@@ -361,58 +361,76 @@ header nav a:hover {
     font-weight: 800;
 }
 
-/* Grid Struktur Organisasi */
-.structure-grid {
+/* Grid Struktur Organisasi - UPDATE JADI 4 KOLOM */
+.member-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 30px;
+    /* Kita kunci jadi 4 kolom di layar desktop */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 25px; /* Jarak antar kartu sedikit dirapatkan agar pas 4 kolom */
+    margin-top: 30px;
 }
 
 .member-card {
     background: #fff;
     text-align: center;
-    padding: 30px;
+    padding: 25px 15px; /* Padding disesuaikan biar gak terlalu lebar */
     border-radius: 12px;
-    /* Border top pakai Biru Benhur */
-    border-top: 5px solid #004aad;
+    border-top: 5px solid #004aad; /* Biru Benhur */
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
 }
 
 .member-card:hover {
-    box-shadow: 0 10px 25px rgba(0,74,173,0.15); /* Shadow biru tipis */
-    border-top: 5px solid #ffd700; /* Berubah jadi emas pas di-hover */
+    box-shadow: 0 10px 25px rgba(0,74,173,0.15); 
+    border-top: 5px solid #ffd700; /* Emas pas di-hover */
+    transform: translateY(-5px); /* Kartu naik dikit pas di-hover */
 }
 
 .member-card img {
-    width: 130px; 
-    height: 130px;
+    width: 110px; /* Ukuran dikecilkan sedikit agar pas di 4 kolom */
+    height: 110px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 20px;
-    border: 4px solid #f1f5f9; /* Bingkai luar foto */
-    padding: 5px; /* Jarak bingkai ke foto */
-    background: #ffd700; /* Warna dasar bingkai emas */
+    margin-bottom: 15px;
+    border: 4px solid #f1f5f9;
+    padding: 3px;
+    background: #ffd700; /* Bingkai emas */
     transition: transform 0.5s ease;
 }
 
 .member-card:hover img {
-    transform: scale(1.05); /* Foto nge-zoom dikit */
+    transform: scale(1.1); /* Foto nge-zoom */
 }
 
 .member-card h4 {
     color: #1e293b;
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Ukuran teks disesuaikan */
     margin-bottom: 5px;
     font-weight: 700;
 }
 
 .member-card p {
-    color: #64748b; /* Warna jabatan lebih soft */
+    color: #64748b;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* Ukuran jabatan disesuaikan */
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+/* --- RESPONSIVE LAYER (PENTING!) --- */
+
+/* Tampilan Tablet (Isi 2 kolom) */
+@media (max-width: 1024px) {
+    .member-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Tampilan HP (Isi 1 kolom agar tidak sempit) */
+@media (max-width: 600px) {
+    .member-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ===================================================
@@ -685,6 +703,96 @@ header nav a:hover {
 .btn-delete:hover {
     background-color: #dc2626;
     color: white;
+}
+
+/* --- TAMBAHAN STYLE TOMBOL EDIT (SESUAI TEMA KAMU) --- */
+.btn-edit {
+    background-color: #fef3c7; /* Kuning muda transparan */
+    color: #d97706; /* Oranye gelap */
+    border: 1px solid #fde68a;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.btn-edit:hover {
+    background-color: #d97706;
+    color: white;
+    border-color: #d97706;
+}
+
+/* --- MODAL EDIT BIAR MAKIN MEWAH --- */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0; top: 0; width: 100%; height: 100%; 
+    background-color: rgba(15, 23, 42, 0.7); /* Overlay lebih gelap & elegan */
+    backdrop-filter: blur(8px); /* Efek kaca blur */
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    border: 1px solid #e2e8f0;
+}
+
+.close-modal {
+    color: #64748b;
+    float: right;
+    font-size: 32px;
+    line-height: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-modal:hover { 
+    color: #ef4444; 
+    transform: rotate(90deg); /* Animasi muter pas di-hover */
+}
+
+/* Animasi muncul modal */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form di dalam modal agar rapi */
+#form-edit-berita .form-group {
+    margin-bottom: 20px;
+}
+
+#form-edit-berita input, 
+#form-edit-berita select, 
+#form-edit-berita textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-family: inherit;
+}
+
+#form-edit-berita .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: #2563eb; /* Biru Profesional */
+    color: white;
+    font-weight: 700;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#form-edit-berita .btn-submit:hover {
+    background: #1e40af;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 /* ===================================================
@@ -1013,13 +1121,13 @@ footer a:hover {
 }
 
 /* ===================================================
-   11. LAPAK PAGE (Branding Karang Taruna)
+   11. LAPAK PAGE (Branding Karang Taruna) - FIXED
    =================================================== */
 
 /* Grid Produk */
 .produk-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Ukuran lebih pas */
     gap: 25px;
     padding: 30px 0;
 }
@@ -1040,18 +1148,19 @@ footer a:hover {
 .produk-card:hover { 
     transform: translateY(-10px);
     box-shadow: 0 12px 25px rgba(0, 74, 173, 0.1);
-    border-color: #ffd700; /* Border berubah emas saat hover */
+    border-color: #ffd700; 
 }
 
 /* Image Wrapper & Badges */
 .img-wrapper { 
     position: relative; 
-    overflow: hidden; 
+    overflow: hidden;
+    height: 220px; /* Konsistensi tinggi gambar */
 }
 
 .produk-img {
     width: 100%;
-    height: 220px;
+    height: 100%;
     object-fit: cover;
     transition: transform 0.5s ease;
 }
@@ -1060,69 +1169,158 @@ footer a:hover {
     transform: scale(1.1);
 }
 
-.badge-kategori {
-    background: #e0f2fe;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    color: #0369a1;
-    text-transform: uppercase;
-    font-weight: 700;
-}
-
 .badge-foto {
     position: absolute; 
     bottom: 10px; 
     right: 10px;
-    background: rgba(0, 74, 173, 0.8); /* Biru Kartar transparan */
+    background: rgba(0, 74, 173, 0.8); 
     color: #fff;
-    padding: 3px 10px; 
-    border-radius: 6px; 
+    padding: 4px 12px; 
+    border-radius: 20px; /* Lebih rounded profesional */
     font-size: 11px;
     backdrop-filter: blur(4px);
+    z-index: 2;
 }
 
-/* Info & Harga */
-.produk-info { 
+/* Info & Harga - DISESUAIKAN DENGAN lapak.js */
+.info { 
     padding: 20px; 
-    flex-grow: 1; 
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.produk-nama { 
+.info h3 { 
     font-weight: 800; 
     font-size: 1.1rem; 
     margin-bottom: 8px; 
     color: #1e293b; 
 }
 
-.produk-harga { 
-    color: #004aad; /* Biru Benhur untuk Harga */
+.info .harga { 
+    color: #004aad; 
     font-weight: 800; 
     font-size: 1.2rem; 
-    margin-bottom: 15px; 
+    margin-bottom: 10px; 
 }
 
-/* Tombol Beli Profesional (Kuning Emas) */
+.info .desc {
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+/* Tombol Beli */
 .button-beli {
     display: block;
     background-color: #ffd700; 
     color: #002d5a !important;
     text-align: center;
     padding: 12px;
-    text-decoration: none;
     border-radius: 10px;
     font-weight: 800;
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.3s ease;
     border: none;
     width: 100%;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    cursor: pointer;
 }
 
 .button-beli:hover {
     background-color: #ffcc00;
     box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+}
+
+/* MODAL DETAIL STYLE - FIXED SCROLL & SPACING */
+.modal-detail-overlay {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.85); z-index: 9999; 
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+
+.modal-detail-content {
+    background: white; width: 100%; max-width: 850px; border-radius: 20px;
+    padding: 30px; position: relative; 
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-detail-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; 
+}
+
+@media (max-width: 768px) { 
+    .modal-detail-grid { grid-template-columns: 1fr; }
+    .main-modal-img { height: 250px; }
+}
+
+.main-modal-img { 
+    width: 100%; 
+    height: 350px; 
+    object-fit: cover; 
+    border-radius: 15px; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.thumbnail-list { 
+    display: flex; 
+    gap: 12px; 
+    margin-top: 15px; 
+    overflow-x: auto; 
+    padding-bottom: 5px;
+}
+
+.thumbnail-list img { 
+    width: 70px; 
+    height: 70px; 
+    object-fit: cover; 
+    cursor: pointer; 
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.thumbnail-list img:hover { border-color: #ffd700; }
+
+.modal-info h2 { font-size: 1.8rem; color: #1e293b; margin-bottom: 5px; }
+.modal-harga { font-size: 1.6rem; color: #004aad; font-weight: 800; margin: 15px 0; }
+.modal-desc-scroll { 
+    color: #475569; 
+    line-height: 1.7; 
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+.btn-wa-modal { 
+    display: block; 
+    background: #25d366; 
+    color: white !important; 
+    text-align: center; 
+    padding: 15px; 
+    border-radius: 12px; 
+    text-decoration: none; 
+    font-weight: 800;
+    transition: 0.3s;
+}
+
+.btn-wa-modal:hover { background: #1eb954; transform: scale(1.02); }
+
+.close-modal { 
+    position: absolute; right: 20px; top: 15px; 
+    font-size: 35px; cursor: pointer; color: #94a3b8; 
+    transition: 0.2s;
+}
+.close-modal:hover { color: #1e293b; }
+
+/* Animasi muncul */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ===================================================

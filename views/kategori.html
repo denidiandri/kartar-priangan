@@ -21,6 +21,30 @@
         .dropdown-menu li a {
             text-transform: capitalize;
         }
+
+        /* CSS Tombol WA Loker (Sambil nunggu CSS lengkap dari kamu) */
+        .btn-wa-loker {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #25d366;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            transition: 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn-wa-loker:hover {
+            background-color: #128c7e;
+        }
+        .btn-wa-loker img {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -52,12 +76,13 @@
                         </ul>
                     </li>
 
-<li class="dropdown">
-    <a href="#">Lapak Warga</a> <ul class="dropdown-menu">
-        <li><a href="/lapak?kategori=Merchandise">Merchandise</a></li>
-        <li><a href="/lapak?kategori=UMKM">Produk UMKM</a></li>
-    </ul>
-</li>
+                    <li class="dropdown">
+                        <a href="#">Lapak Warga</a> 
+                        <ul class="dropdown-menu">
+                            <li><a href="/lapak?kategori=Merchandise">Merchandise</a></li>
+                            <li><a href="/lapak?kategori=UMKM">Produk UMKM</a></li>
+                        </ul>
+                    </li>
 
                     <li><a href="/kontak">Kontak</a></li>
                     <li><a href="/#kritik">Kritik & Saran</a></li>
@@ -80,9 +105,9 @@
         <p>&copy; 2026 Karang Taruna Priangan.</p>
     </footer>
 
-    
     <script src="/js/main.js"></script>
     <script src="/js/kategori.js"></script>
+    
     
 </body>
 </html>

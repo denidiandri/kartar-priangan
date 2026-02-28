@@ -1,18 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. LOGIKA NAVIGASI & DROPDOWN (FIXED) ---
-    const hamburger = document.querySelector('.hamburger');
-    const nav = document.querySelector('nav');
-    const dropdowns = document.querySelectorAll('.dropdown');
-
-   
-
-    // Klik di luar area menu untuk menutup otomatis
-    document.addEventListener('click', () => {
-        if (nav) nav.classList.remove('active');
-        dropdowns.forEach(dd => dd.classList.remove('show'));
-    });
-
-    // --- 2. LOGIKA LAPAK WARGA (AMBIL DATA API) ---
     const container = document.getElementById('container-produk');
     const judulHalaman = document.getElementById('judul-halaman');
 
@@ -25,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let apiUrl = '/api/produk';
     if (kategori) {
-        apiUrl += `?kategori=${encodeURIComponent(kategori)}`;
+        apiUrl = `/api/produk/kategori/${encodeURIComponent(kategori)}`;
     }
 
     fetch(apiUrl)
@@ -37,61 +23,74 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            container.innerHTML = data.map(p => {
-                const fotoArray = p.foto.split(',');
-                const fotoUtama = fotoArray[0];
-                const sisaFoto = fotoArray.length > 1 ? `<span class="badge-foto">+${fotoArray.length - 1} Gambar</span>` : '';
+            // Simpan ke window agar aman dipanggil fungsi bukaDetail
+            window.dataLapak = data;
+
+            container.innerHTML = data.map((p, index) => {
+                const fotoArray = p.foto ? p.foto.split(',') : [];
+                
+                // FIX PATH: Pastikan mengarah ke /img/produk/
+                let fotoUtama = fotoArray[0] ? fotoArray[0].trim() : ''; 
+                if (fotoUtama && !fotoUtama.startsWith('/img/')) {
+                    fotoUtama = `/img/produk/${fotoUtama}`;
+                }
+
+                const sisaFoto = fotoArray.length > 1 ? `<span class="badge-foto">+${fotoArray.length - 1}</span>` : '';
 
                 return `
-                <div class="produk-card" onclick="bukaDetail(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                <div class="produk-card" onclick="bukaDetail(${index})">
                     <div class="img-wrapper">
-                        <img src="/img/produk/${fotoUtama}" alt="${p.nama_produk}" class="produk-img">
+                        <img src="${fotoUtama}" alt="${p.nama_produk}" class="produk-img" onerror="this.src='/images/no-image.png'">
                         ${sisaFoto}
                     </div>
                     <div class="info">
                         <h3>${p.nama_produk}</h3>
                         <p class="harga">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</p>
-                        <p class="desc">${p.deskripsi.substring(0, 50)}${p.deskripsi.length > 50 ? '...' : ''}</p>
+                        <p class="desc">${p.deskripsi ? p.deskripsi.substring(0, 50) : ''}...</p>
                         <div class="btn-wrapper">
-                            <a href="https://wa.me/${p.no_wa}?text=Halo, saya tertarik dengan produk ${p.nama_produk}" 
-                               class="button-beli" target="_blank" onclick="event.stopPropagation()">
-                                Beli via WA
-                            </a>
+                            <button class="button-beli">Lihat Detail</button>
                         </div>
                     </div>
-                </div>
-            `}).join('');
+                </div>`;
+            }).join('');
         })
         .catch(err => console.error('Gagal memuat produk:', err));
 });
 
-// FUNGSI UNTUK MODAL DETAIL
-function bukaDetail(p) {
-    const fotoArray = p.foto.split(',');
-    const modal = document.createElement('div');
-    modal.className = 'modal-detail';
-    modal.onclick = () => modal.remove();
+function bukaDetail(index) {
+    const p = window.dataLapak[index];
+    const fotoArray = p.foto ? p.foto.split(',') : [];
+    
+    // Fungsi bantu untuk fix path di dalam modal
+    const getPath = (img) => {
+        let path = img.trim();
+        return path.startsWith('/img/') ? path : `/img/produk/${path}`;
+    };
 
+    const modal = document.createElement('div');
+    modal.className = 'modal-detail-overlay'; 
+    
     modal.innerHTML = `
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close-btn" onclick="this.parentElement.parentElement.remove()">&times;</span>
-            <div class="modal-body">
+        <div class="modal-detail-content">
+            <span class="close-modal" onclick="this.parentElement.parentElement.remove()">&times;</span>
+            <div class="modal-detail-grid">
                 <div class="modal-galeri">
-                    <img src="/img/produk/${fotoArray[0]}" id="mainImg" class="main-modal-img">
+                    <img src="${getPath(fotoArray[0])}" id="mainImg" class="main-modal-img" onerror="this.src='/images/no-image.png'">
                     <div class="thumbnail-list">
-                        ${fotoArray.map(f => `<img src="/img/produk/${f}" onclick="document.getElementById('mainImg').src=this.src">`).join('')}
+                        ${fotoArray.map(f => `<img src="${getPath(f)}" onclick="document.getElementById('mainImg').src=this.src" onerror="this.src='/images/no-image.png'">`).join('')}
                     </div>
                 </div>
                 <div class="modal-info">
                     <h2>${p.nama_produk}</h2>
                     <p class="modal-harga">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</p>
                     <hr>
-                    <p class="modal-desc">${p.deskripsi}</p>
-                    <a href="https://wa.me/${p.no_wa}" class="button-beli">Pesan Sekarang via WhatsApp</a>
+                    <div class="modal-desc-scroll">
+                        <p>${p.deskripsi}</p>
+                    </div>
+                    <a href="https://wa.me/${p.no_wa}?text=Halo, saya tertarik dengan produk ${p.nama_produk}" target="_blank" class="btn-wa-modal">Pesan via WhatsApp</a>
                 </div>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
 }
-

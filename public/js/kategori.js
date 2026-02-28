@@ -24,12 +24,22 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(i => {
                 const judulKat = document.getElementById('judul-kategori');
-                if(judulKat) judulKat.style.display = 'none'; // Sembunyikan header "Memuat" agar bersih
+                if(judulKat) judulKat.style.display = 'none'; 
 
                 if(container) {
-                    // PENTING: Matikan grid agar artikel bisa melebar penuh ke samping
                     container.style.display = 'block'; 
                     container.style.width = '100%';
+
+                    // Cek apakah kategori loker untuk memunculkan tombol WA di detail
+                    const tombolWA = (i.kategori.toLowerCase() === 'loker') ? `
+                        <div style="margin: 20px 0;">
+                            <a href="https://wa.me/6282315483006?text=Halo%20Admin%20Kartar%2C%20saya%20ingin%20melamar%3A%20*${i.judul}*" 
+                               class="btn-wa-loker" target="_blank" style="display: inline-flex; align-items: center; background: #25d366; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                               <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" style="margin-right: 10px;"> 
+                               Kirim CV Ke Admin via WhatsApp
+                            </a>
+                        </div>
+                    ` : '';
 
                     container.innerHTML = `
                         <div class="read-news-wrapper">
@@ -48,6 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="news-body-content">
                                     ${i.isi}
                                 </div>
+
+                                ${tombolWA}
 
                                 <hr class="news-divider">
                                 <a href="javascript:history.back()" class="btn-back-link">← Kembali ke Berita</a>
@@ -68,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             judulKat.style.display = 'block';
         }
 
-        if(container) container.style.display = 'grid'; // Kembalikan ke grid untuk daftar berita
+        if(container) container.style.display = 'grid'; 
         
         let apiUrl = `/api/berita/kategori/${slug}`;
         if (slug === 'kos') apiUrl = '/api/kos';
@@ -84,6 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 container.innerHTML = '';
                 data.forEach(i => {
+                    // Cek apakah kategori loker untuk tombol di kartu berita
+                    const tombolWA = (i.kategori.toLowerCase() === 'loker') ? `
+                        <a href="https://wa.me/6282315483006?text=Halo%20Admin%20Kartar%2C%20saya%20tertarik%20melamar%3A%20*${i.judul}*" 
+                           class="btn-wa-loker" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #25d366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 0.8rem;">
+                           <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="16" style="margin-right: 8px;"> Kirim CV Ke Admin
+                        </a>
+                    ` : '';
+
                     container.innerHTML += `
                         <div class="news-card">
                             <div class="news-img-box">
@@ -95,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <h3>${i.judul}</h3>
                                 <p>${i.isi.substring(0, 100)}...</p>
                                 <a href="/baca-berita/${i.id}" class="btn-read-more">Baca Selengkapnya</a>
+                                ${tombolWA}
                             </div>
                         </div>
                     `;
