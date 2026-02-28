@@ -30,7 +30,7 @@ const upload = multer({
 });
 
 export default (db) => {
-    console.log("✅ Sistem Rute Lapak & Upload Berhasil Dimuat");
+    console.log("✅ Sistem Rute Berhasil Dimuat");
 
     // --- RUTE HALAMAN STATIS ---
     router.get('/', (req, res) => res.sendFile(path.join(__dirname, '../views/index.html')));
@@ -52,44 +52,70 @@ export default (db) => {
         const kategori = req.query.kategori;
         let sql = "SELECT * FROM produk";
         let params = [];
-
         if (kategori && kategori !== 'undefined') {
             sql += " WHERE kategori = ? ORDER BY id DESC";
             params.push(kategori);
         } else {
             sql += " ORDER BY id DESC";
         }
-
         db.query(sql, params, (err, results) => {
             if (err) return res.status(500).json(err);
             res.json(results);
         });
     });
 
-    // ==========================================
-    // --- API DATA STRUKTUR (PERBAIKAN 404) ---
-    // ==========================================
+    // --- API STRUKTUR (FIX 404 & UPDATE) ---
+    router.get('/api/struktur', (req, res) => {
+        db.query("SELECT * FROM struktur ORDER BY id ASC", (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results);
+        });
+    });
+
     router.get('/api/struktur/:id', (req, res) => {
         const id = req.params.id;
-        const sql = "SELECT * FROM struktur WHERE id = ?";
-        db.query(sql, [id], (err, results) => {
+        db.query("SELECT * FROM struktur WHERE id = ?", [id], (err, results) => {
             if (err) return res.status(500).json(err);
-            if (results.length === 0) return res.status(404).json({ message: "Data tidak ditemukan" });
+            if (results.length === 0) return res.status(404).json({ message: "Data tidak ada" });
             res.json(results[0]);
         });
     });
 
-    router.get('/api/struktur', (req, res) => {
-        const sql = "SELECT * FROM struktur ORDER BY id ASC";
-        db.query(sql, (err, results) => {
+    // RUTE PROSES UPDATE STRUKTUR
+    router.put('/api/struktur/:id', cekLogin, (req, res) => {
+        const id = req.params.id;
+        const { nama, jabatan } = req.body;
+        const sql = "UPDATE struktur SET nama = ?, jabatan = ? WHERE id = ?";
+        db.query(sql, [nama, jabatan, id], (err, result) => {
             if (err) return res.status(500).json(err);
-            res.json(results);
+            res.json({ message: "Data struktur berhasil diperbarui" });
         });
     });
 
     // --- RUTE KATEGORI & BERITA ---
     router.get(['/kategori/:nama', '/berita-:nama', '/baca-berita/:id'], (req, res) => {
         res.sendFile(path.join(__dirname, '../views/kategori.html'));
+    });
+
+    // --- API BERITA (UNTUK EDIT) ---
+    // Pastikan rute ini ada agar dashboard bisa narik data berita yang mau diedit
+    router.get('/api/berita/:id', (req, res) => {
+        const id = req.params.id;
+        db.query("SELECT * FROM berita WHERE id = ?", [id], (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results[0]);
+        });
+    });
+
+    // PROSES UPDATE BERITA (INIKAN YANG KAMU MAKSUD DATA TIDAK BERUBAH?)
+    router.put('/api/berita/:id', cekLogin, (req, res) => {
+        const id = req.params.id;
+        const { judul, isi, kategori } = req.body;
+        const sql = "UPDATE berita SET judul = ?, isi = ?, kategori = ? WHERE id = ?";
+        db.query(sql, [judul, isi, kategori, id], (err, result) => {
+            if (err) return res.status(500).json(err);
+            res.json({ message: "Berita berhasil diperbarui" });
+        });
     });
 
     // --- ADMIN AREA ---
@@ -100,20 +126,11 @@ export default (db) => {
     // PROSES TAMBAH PRODUK
     router.post('/tambah-produk', cekLogin, upload.array('foto', 5), (req, res) => {
         const { nama_produk, kategori, harga, no_wa, deskripsi } = req.body;
-        
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).send("Gagal: Mohon unggah minimal satu foto produk.");
-        }
-
+        if (!req.files || req.files.length === 0) return res.status(400).send("Mohon unggah foto.");
         const daftarFoto = req.files.map(file => file.filename).join(',');
         const sql = "INSERT INTO produk (nama_produk, kategori, harga, no_wa, foto, deskripsi) VALUES (?, ?, ?, ?, ?, ?)";
-        const values = [nama_produk, kategori, parseInt(harga), no_wa, daftarFoto, deskripsi];
-
-        db.query(sql, values, (err, result) => {
-            if (err) {
-                console.error("❌ Error Database:", err);
-                return res.status(500).send("Gagal menyimpan ke database.");
-            }
+        db.query(sql, [nama_produk, kategori, parseInt(harga), no_wa, daftarFoto, deskripsi], (err) => {
+            if (err) return res.status(500).send("Gagal menyimpan.");
             res.redirect('/admin-dashboard?status=success'); 
         });
     });
@@ -121,24 +138,16 @@ export default (db) => {
     // --- RUTE HAPUS PRODUK ---
     router.delete('/api/produk/:id', cekLogin, (req, res) => {
         const id = req.params.id;
-
         db.query("SELECT foto FROM produk WHERE id = ?", [id], (err, results) => {
             if (err) return res.status(500).json(err);
-            if (results.length === 0) return res.status(404).send("Produk tidak ditemukan");
-
-            if (results[0].foto) {
-                const fotoArray = results[0].foto.split(',');
-                fotoArray.forEach(namaFile => {
-                    const pathFoto = path.join(process.cwd(), 'public/img/produk', namaFile.trim());
-                    if (fs.existsSync(pathFoto)) {
-                        fs.unlinkSync(pathFoto);
-                    }
+            if (results.length > 0 && results[0].foto) {
+                results[0].foto.split(',').forEach(f => {
+                    const p = path.join(process.cwd(), 'public/img/produk', f.trim());
+                    if (fs.existsSync(p)) fs.unlinkSync(p);
                 });
             }
-
             db.query("DELETE FROM produk WHERE id = ?", [id], (err) => {
                 if (err) return res.status(500).json(err);
-                console.log(`✅ Produk ID ${id} berhasil dihapus.`);
                 res.status(200).send("Berhasil dihapus");
             });
         });
