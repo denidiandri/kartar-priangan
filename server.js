@@ -45,7 +45,7 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Penting untuk menangkap data dari fetch POST
+app.use(express.json()); 
 
 // --- DATABASE CONNECTION ---
 const db = mysql.createPool({
@@ -72,14 +72,15 @@ db.getConnection((err, connection) => {
 
 // --- PENGGUNAAN ROUTES ---
 
-// 1. Taruh News paling atas agar rute berita prioritas
+// 1. News Routes (Butuh db dan upload)
 app.use('/', newsRoutes(db, upload)); 
 
-// 2. Auth Routes
+// 2. Auth Routes (Cuma butuh db)
 app.use('/', authRoutes(db));
 
-// 3. Web Routes (Lapak, Struktur, dll)
-app.use('/', webRoutes(db, upload)); 
+// 3. Web Routes (HANYA butuh db agar API Settings/Struktur Jalan)
+// Perubahan di sini: menghapus 'upload' karena web.js kamu hanya menerima 'db'
+app.use('/', webRoutes(db)); 
 
 // --- JARING PENGAMAN 404 ---
 app.use((req, res) => {
@@ -89,4 +90,4 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server meluncur di port http://localhost:${PORT}`);
-}); 
+});
