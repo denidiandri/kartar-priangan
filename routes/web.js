@@ -81,8 +81,8 @@ export default (db) => {
         });
     });
 
-    // RUTE PROSES UPDATE STRUKTUR
-    router.put('/api/struktur/:id', cekLogin, (req, res) => {
+    // RUTE PROSES UPDATE STRUKTUR (DIUBAH KE POST AGAR TIDAK DIBLOKIR HOSTING)
+    router.post('/api/struktur/:id', cekLogin, (req, res) => {
         const id = req.params.id;
         const { nama, jabatan } = req.body;
         const sql = "UPDATE struktur SET nama = ?, jabatan = ? WHERE id = ?";
@@ -98,17 +98,17 @@ export default (db) => {
     });
 
     // --- API BERITA (UNTUK EDIT) ---
-    // Pastikan rute ini ada agar dashboard bisa narik data berita yang mau diedit
     router.get('/api/berita/:id', (req, res) => {
         const id = req.params.id;
         db.query("SELECT * FROM berita WHERE id = ?", [id], (err, results) => {
             if (err) return res.status(500).json(err);
+            if (results.length === 0) return res.status(404).json({ message: "Berita tidak ada" });
             res.json(results[0]);
         });
     });
 
-    // PROSES UPDATE BERITA (INIKAN YANG KAMU MAKSUD DATA TIDAK BERUBAH?)
-    router.put('/api/berita/:id', cekLogin, (req, res) => {
+    // PROSES UPDATE BERITA (DIUBAH KE POST AGAR TIDAK DIBLOKIR HOSTING)
+    router.post('/api/berita/:id', cekLogin, (req, res) => {
         const id = req.params.id;
         const { judul, isi, kategori } = req.body;
         const sql = "UPDATE berita SET judul = ?, isi = ?, kategori = ? WHERE id = ?";
@@ -143,7 +143,9 @@ export default (db) => {
             if (results.length > 0 && results[0].foto) {
                 results[0].foto.split(',').forEach(f => {
                     const p = path.join(process.cwd(), 'public/img/produk', f.trim());
-                    if (fs.existsSync(p)) fs.unlinkSync(p);
+                    if (fs.existsSync(p)) {
+                        try { fs.unlinkSync(p); } catch(e) { console.log("Gagal hapus file:", p); }
+                    }
                 });
             }
             db.query("DELETE FROM produk WHERE id = ?", [id], (err) => {

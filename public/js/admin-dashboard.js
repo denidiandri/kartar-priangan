@@ -80,7 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit Berita
     window.bukaModalEdit = function(id) {
         fetch(`/api/berita/${id}`)
-            .then(res => res.json())
+            .then(res => {
+                if(!res.ok) throw new Error("Data tidak ditemukan");
+                return res.json();
+            })
             .then(data => {
                 document.getElementById('edit-id').value = data.id;
                 document.getElementById('edit-judul').value = data.judul;
@@ -88,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('edit-isi').value = data.isi;
                 document.getElementById('modalEditBerita').style.display = 'block';
             })
-            .catch(err => alert("Gagal mengambil data berita"));
+            .catch(err => alert("Gagal mengambil data berita: " + err.message));
     };
 
     window.tutupModalEdit = function() {
@@ -98,14 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Edit Struktur
     window.bukaModalEditStruktur = function(id) {
         fetch(`/api/struktur/${id}`)
-            .then(res => res.json())
+            .then(res => {
+                if(!res.ok) throw new Error("Data tidak ditemukan");
+                return res.json();
+            })
             .then(data => {
                 document.getElementById('edit-struktur-id').value = data.id;
                 document.getElementById('edit-struktur-nama').value = data.nama;
                 document.getElementById('edit-struktur-jabatan').value = data.jabatan;
                 document.getElementById('modalEditStruktur').style.display = 'block';
             })
-            .catch(err => alert("Gagal mengambil data struktur"));
+            .catch(err => alert("Gagal mengambil data struktur: " + err.message));
     };
 
     window.tutupModalEditStruktur = function() {
@@ -146,12 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 kategori: document.getElementById('edit-kategori').value,
                 isi: document.getElementById('edit-isi').value
             };
-            // PERBAIKAN: Hapus "/edit" agar sesuai dengan backend web.js
+            // Menggunakan POST agar tidak diblokir hosting
             fetch(`/api/berita/${id}`, {
-                method: 'PUT',
+                method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            }).then(() => { alert('Update Berhasil!'); location.reload(); });
+            })
+            .then(res => res.json())
+            .then(() => { alert('Update Berhasil!'); location.reload(); })
+            .catch(err => alert("Gagal update berita"));
         };
     }
 
@@ -165,12 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 nama: document.getElementById('edit-struktur-nama').value,
                 jabatan: document.getElementById('edit-struktur-jabatan').value
             };
-            // PERBAIKAN: Hapus "/edit" agar sesuai dengan backend web.js
+            // Menggunakan POST agar tidak diblokir hosting
             fetch(`/api/struktur/${id}`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            }).then(() => { alert('Update Struktur Berhasil!'); location.reload(); });
+            })
+            .then(res => res.json())
+            .then(() => { alert('Update Struktur Berhasil!'); location.reload(); })
+            .catch(err => alert("Gagal update struktur"));
         };
     }
 
@@ -182,13 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Settings & Saran
     fetch('/api/settings').then(res => res.json()).then(data => {
         if(data) {
-            document.getElementById('set-alamat').value = data.alamat || '';
-            document.getElementById('set-wa').value = data.whatsapp || '';
-            document.getElementById('set-email').value = data.email || '';
-            document.getElementById('set-sosmed').value = data.sosmed || ''; 
-            document.getElementById('set-maps').value = data.maps_link || '';
-            document.getElementById('set-visi').value = data.visi || '';
-            document.getElementById('set-misi').value = data.misi || '';
+            if(document.getElementById('set-alamat')) document.getElementById('set-alamat').value = data.alamat || '';
+            if(document.getElementById('set-wa')) document.getElementById('set-wa').value = data.whatsapp || '';
+            if(document.getElementById('set-email')) document.getElementById('set-email').value = data.email || '';
+            if(document.getElementById('set-sosmed')) document.getElementById('set-sosmed').value = data.sosmed || ''; 
+            if(document.getElementById('set-maps')) document.getElementById('set-maps').value = data.maps_link || '';
+            if(document.getElementById('set-visi')) document.getElementById('set-visi').value = data.visi || '';
+            if(document.getElementById('set-misi')) document.getElementById('set-misi').value = data.misi || '';
         }
     });
 

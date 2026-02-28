@@ -16,16 +16,13 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// --- KONFIGURASI MULTER DINAMIS (SUDAH BENAR) ---
+// --- KONFIGURASI MULTER DINAMIS ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = 'public/img/produk/'; 
-        
-        // Cek fieldname: 'gambar' (Berita) atau 'foto' (Lapak)
         if (file.fieldname === 'gambar') {
             dir = 'public/images/';
         }
-        
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -48,15 +45,14 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json()); // Penting untuk menangkap data dari fetch POST
 
+// --- DATABASE CONNECTION ---
 const db = mysql.createPool({
-    // Jika di .env tidak ada, dia akan coba ke localhost
     host: process.env.DB_HOST || 'localhost', 
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    // Ganti 17571 jadi 3306 karena ini port standar MySQL server
     port: process.env.DB_PORT || 3306, 
     waitForConnections: true,
     connectionLimit: 5,
@@ -65,24 +61,25 @@ const db = mysql.createPool({
     keepAliveInitialDelay: 10000
 });
 
-// --- TES KONEKSI DATABASE ---
 db.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Koneksi Database Gagal: ' + err.message);
-        // Cek apakah errornya: ECONNREFUSED (MySQL mati) atau ER_BAD_DB_ERROR (DB tidak ada)
     } else {
         console.log('✅ Database Terhubung (Pool Mode)!');
         connection.release();
     }
 });
 
-// --- PENGGUNAAN ROUTES (DIPERBAIKI) ---
+// --- PENGGUNAAN ROUTES ---
+
+// 1. Taruh News paling atas agar rute berita prioritas
+app.use('/', newsRoutes(db, upload)); 
+
+// 2. Auth Routes
 app.use('/', authRoutes(db));
 
-// PERHATIKAN: webRoutes sekarang dikirimkan variabel 'upload' juga!
+// 3. Web Routes (Lapak, Struktur, dll)
 app.use('/', webRoutes(db, upload)); 
-
-app.use('/', newsRoutes(db, upload)); 
 
 // --- JARING PENGAMAN 404 ---
 app.use((req, res) => {
