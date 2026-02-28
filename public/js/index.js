@@ -40,4 +40,7 @@ async function fetchHomeNews() {
     }
 }
 
-fetchHomeNews();
+// Ganti fetchHomeNews(); yang di paling bawah tadi dengan ini:
+document.addEventListener('DOMContentLoaded', () => {
+    fetchHomeNews();
+});
