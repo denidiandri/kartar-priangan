@@ -36,11 +36,18 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // --- MIDDLEWARE ---
+app.set('trust proxy', 1); // Wajib di hosting/cPanel agar session stabil
 app.use(session({
     secret: process.env.SESSION_SECRET || 'kartar-priangan-rahasia',
     resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 3600000 }
+    saveUninitialized: false, 
+    proxy: true,
+    cookie: { 
+        maxAge: 3600000,
+        secure: false, // Set ke true hanya jika sudah pakai HTTPS/SSL
+        httpOnly: true,
+        sameSite: 'lax'
+    }
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,26 +68,26 @@ const db = mysql.createPool({
     keepAliveInitialDelay: 10000
 });
 
+// Check database connection
 db.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Koneksi Database Gagal: ' + err.message);
     } else {
-        console.log('✅ Database Terhubung (Pool Mode)!');
+        console.log('✅ Database Terhubung!');
         connection.release();
     }
 });
 
-// --- PENGGUNAAN ROUTES ---
+// --- PENGGUNAAN ROUTES (URUTAN DIPERBAIKI) ---
 
-// 1. News Routes (Butuh db dan upload)
-app.use('/', newsRoutes(db, upload)); 
-
-// 2. Auth Routes (Cuma butuh db)
+// 1. Auth Dulu (Biar rute login gak ketutup/404)
 app.use('/', authRoutes(db));
 
-// 3. Web Routes (HANYA butuh db agar API Settings/Struktur Jalan)
-// Perubahan di sini: menghapus 'upload' karena web.js kamu hanya menerima 'db'
+// 2. Web Routes (API Settings/Struktur)
 app.use('/', webRoutes(db)); 
+
+// 3. News Routes (Berita & Upload)
+app.use('/', newsRoutes(db, upload)); 
 
 // --- JARING PENGAMAN 404 ---
 app.use((req, res) => {
@@ -90,4 +97,4 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Server meluncur di port http://localhost:${PORT}`);
-});
+}); 
