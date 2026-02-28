@@ -4,17 +4,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const nav = document.getElementById('nav-menu');
     const dropdowns = document.querySelectorAll('.dropdown');
 
+    // Tambahan fix: Biar tombol hamburger beneran kerja
+    if (hamburger) {
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Biar gak langsung ketutup sama listener document
+            nav.classList.toggle('active');
+        });
+    }
+
+    // Tutup menu kalau klik di luar
     document.addEventListener('click', () => {
         if (nav) nav.classList.remove('active');
         dropdowns.forEach(dd => dd.classList.remove('show'));
     });
 
-    // --- 2. KODE BERITA ASLI (LOGIKA API KATEGORI) ---
+    // --- 2. KODE BERITA ASLI ---
     const path = window.location.pathname;
     let slug = path.split('/').pop(); 
     const container = document.getElementById('konten-berita');
 
-    if (!slug || path === '/kos') {
+    // Fix: Perketat kondisi biar gak tabrakan
+    if (path === '/kos' || (!slug && path === '/')) {
         slug = 'kos';
     }
 
@@ -23,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`/api/berita/${slug}`)
             .then(res => res.json())
             .then(i => {
+                if (!i || i.error) return; // Pengaman kalau data zonk
+
                 const judulKat = document.getElementById('judul-kategori');
                 if(judulKat) judulKat.style.display = 'none'; 
 
@@ -30,8 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     container.style.display = 'block'; 
                     container.style.width = '100%';
 
-                    // Cek apakah kategori loker untuk memunculkan tombol WA di detail
-                    const tombolWA = (i.kategori.toLowerCase() === 'loker') ? `
+                    // Fix: Tambahin pengaman toLowerCase() biar gak error kalau kategori null
+                    const katSafe = (i.kategori || 'umum').toLowerCase();
+                    const tombolWA = (katSafe === 'loker') ? `
                         <div style="margin: 20px 0;">
                             <a href="https://wa.me/6282315483006?text=Halo%20Admin%20Kartar%2C%20saya%20ingin%20melamar%3A%20*${i.judul}*" 
                                class="btn-wa-loker" target="_blank" style="display: inline-flex; align-items: center; background: #25d366; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">
@@ -45,29 +58,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="read-news-wrapper">
                             <article class="news-detail-full">
                                 <h1 class="news-main-title">${i.judul}</h1>
-                                
                                 <div class="news-meta-info">
-                                    <span class="badge-kat">${i.kategori.toUpperCase()}</span>
+                                    <span class="badge-kat">${(i.kategori || 'UMUM').toUpperCase()}</span>
                                     <span class="news-date">${new Date(i.tanggal).toLocaleDateString('id-ID')}</span>
                                 </div>
-
                                 <div class="news-image-main">
-                                    <img src="${i.gambar}" alt="${i.judul}">
+                                    <img src="${i.gambar}" alt="${i.judul}" onerror="this.src='/images/default.jpg'">
                                 </div>
-
                                 <div class="news-body-content">
                                     ${i.isi}
                                 </div>
-
                                 ${tombolWA}
-
                                 <hr class="news-divider">
                                 <a href="javascript:history.back()" class="btn-back-link">← Kembali ke Berita</a>
                             </article>
                         </div>
                     `;
                 }
-            });
+            })
+            .catch(err => console.error("Gagal load detail:", err));
     } else {
         // MODE DAFTAR KATEGORI
         let judulHeader = "Kategori: " + slug;
@@ -96,8 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 container.innerHTML = '';
                 data.forEach(i => {
-                    // Cek apakah kategori loker untuk tombol di kartu berita
-                    const tombolWA = (i.kategori.toLowerCase() === 'loker') ? `
+                    const katSafe = (i.kategori || 'umum').toLowerCase();
+                    const tombolWA = (katSafe === 'loker') ? `
                         <a href="https://wa.me/6282315483006?text=Halo%20Admin%20Kartar%2C%20saya%20tertarik%20melamar%3A%20*${i.judul}*" 
                            class="btn-wa-loker" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #25d366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 0.8rem;">
                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="16" style="margin-right: 8px;"> Kirim CV Ke Admin
@@ -107,10 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     container.innerHTML += `
                         <div class="news-card">
                             <div class="news-img-box">
-                                <img src="${i.gambar}" alt="Gambar">
+                                <img src="${i.gambar}" alt="Gambar" onerror="this.src='/images/default.jpg'">
                             </div>
                             <div class="news-info">
-                                <small style="color: #e74c3c; font-weight: bold;">${i.kategori.toUpperCase()}</small>
+                                <small style="color: #e74c3c; font-weight: bold;">${(i.kategori || 'UMUM').toUpperCase()}</small>
                                 ${i.harga ? `<br><small style="color: #27ae60; font-weight: bold;">${i.harga}</small>` : ''}
                                 <h3>${i.judul}</h3>
                                 <p>${i.isi.substring(0, 100)}...</p>
