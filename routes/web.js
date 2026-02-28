@@ -30,24 +30,37 @@ const upload = multer({
 });
 
 export default (db) => {
-    console.log("✅ Sistem Rute Berhasil Dimuat");
 
-    // --- RUTE HALAMAN STATIS ---
+    // --- 1. RUTE HALAMAN STATIS (DEPAN) ---
     router.get('/', (req, res) => res.sendFile(path.join(__dirname, '../views/index.html')));
     router.get('/profil', (req, res) => res.sendFile(path.join(__dirname, '../views/profil.html')));
     router.get('/kontak', (req, res) => res.sendFile(path.join(__dirname, '../views/kontak.html')));
     router.get('/kritik', (req, res) => res.sendFile(path.join(__dirname, '../views/kritik.html')));
     router.get('/login', (req, res) => res.sendFile(path.join(__dirname, '../views/login.html')));
     router.get('/kos', (req, res) => res.sendFile(path.join(__dirname, '../views/kos.html')));
+    router.get('/lapak', (req, res) => res.sendFile(path.join(__dirname, '../views/lapak.html')));
 
-    // --- RUTE LAPAK ---
-    router.get('/lapak', (req, res) => {
-        res.sendFile(path.join(__dirname, '../views/lapak.html'), (err) => {
-            if (err) res.status(404).send("File lapak.html tidak ditemukan!");
+    // --- 2. RUTE ADMIN (WAJIB PAKAI cekLogin) ---
+    // Pastikan file admin-dashboard.html ada di folder /views/
+    router.get('/admin-dashboard', cekLogin, (req, res) => {
+        res.sendFile(path.join(__dirname, '../views/admin-dashboard.html'));
+    });
+
+    // --- 3. API DATA (SETTINGS, STRUKTUR, PRODUK) ---
+    router.get('/api/settings', (req, res) => {
+        db.query("SELECT * FROM settings LIMIT 1", (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results[0] || {});
         });
     });
 
-    // --- API DATA PRODUK ---
+    router.get('/api/struktur', (req, res) => {
+        db.query("SELECT * FROM struktur ORDER BY id ASC", (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results);
+        });
+    });
+
     router.get('/api/produk', (req, res) => {
         const kategori = req.query.kategori;
         let sql = "SELECT * FROM produk";
@@ -64,79 +77,14 @@ export default (db) => {
         });
     });
 
-    // --- API SETTINGS (VISI, MISI, KONTAK) ---
-    // Tambahkan ini agar halaman profil dan kontak tidak 404
-    router.get('/api/settings', (req, res) => {
-        db.query("SELECT * FROM settings LIMIT 1", (err, results) => {
-            if (err) return res.status(500).json(err);
-            res.json(results[0] || {});
-        });
-    });
+    // --- 4. RUTE BERITA & KATEGORI (Catch-all rute ditaruh di bawah) ---
+    router.get('/kategori/:nama', (req, res) => res.sendFile(path.join(__dirname, '../views/kategori.html')));
+    router.get('/baca-berita/:id', (req, res) => res.sendFile(path.join(__dirname, '../views/kategori.html')));
 
-    // --- API STRUKTUR (FIX 404 & UPDATE) ---
-    router.get('/api/struktur', (req, res) => {
-        db.query("SELECT * FROM struktur ORDER BY id ASC", (err, results) => {
-            if (err) return res.status(500).json(err);
-            res.json(results);
-        });
-    });
-
-    router.get('/api/struktur/:id', (req, res) => {
-        const id = req.params.id;
-        db.query("SELECT * FROM struktur WHERE id = ?", [id], (err, results) => {
-            if (err) return res.status(500).json(err);
-            if (results.length === 0) return res.status(404).json({ message: "Data tidak ada" });
-            res.json(results[0]);
-        });
-    });
-
-    // RUTE PROSES UPDATE STRUKTUR
-    router.post('/api/struktur/:id', cekLogin, (req, res) => {
-        const id = req.params.id;
-        const { nama, jabatan } = req.body;
-        const sql = "UPDATE struktur SET nama = ?, jabatan = ? WHERE id = ?";
-        db.query(sql, [nama, jabatan, id], (err, result) => {
-            if (err) return res.status(500).json(err);
-            res.json({ message: "Data struktur berhasil diperbarui" });
-        });
-    });
-
-    // --- RUTE KATEGORI & BERITA ---
-    router.get(['/kategori/:nama', '/berita-:nama', '/baca-berita/:id'], (req, res) => {
-        res.sendFile(path.join(__dirname, '../views/kategori.html'));
-    });
-
-    // --- API BERITA (UNTUK EDIT) ---
-    router.get('/api/berita/:id', (req, res) => {
-        const id = req.params.id;
-        db.query("SELECT * FROM berita WHERE id = ?", [id], (err, results) => {
-            if (err) return res.status(500).json(err);
-            if (results.length === 0) return res.status(404).json({ message: "Berita tidak ada" });
-            res.json(results[0]);
-        });
-    });
-
-    // PROSES UPDATE BERITA
-    router.post('/api/berita/:id', cekLogin, (req, res) => {
-        const id = req.params.id;
-        const { judul, isi, kategori } = req.body;
-        const sql = "UPDATE berita SET judul = ?, isi = ?, kategori = ? WHERE id = ?";
-        db.query(sql, [judul, isi, kategori, id], (err, result) => {
-            if (err) return res.status(500).json(err);
-            res.json({ message: "Berita berhasil diperbarui" });
-        });
-    });
-
-    // --- ADMIN AREA ---
-    router.get('/admin-dashboard', cekLogin, (req, res) => {
-        res.sendFile(path.join(__dirname, '../views/admin-dashboard.html'));
-    });
-
-    // PROSES TAMBAH PRODUK
+    // --- 5. PROSES CRUD (TAMBAH/HAPUS/UPDATE) ---
     router.post('/tambah-produk', cekLogin, upload.array('foto', 5), (req, res) => {
         const { nama_produk, kategori, harga, no_wa, deskripsi } = req.body;
-        if (!req.files || req.files.length === 0) return res.status(400).send("Mohon unggah foto.");
-        const daftarFoto = req.files.map(file => file.filename).join(',');
+        const daftarFoto = req.files ? req.files.map(file => file.filename).join(',') : '';
         const sql = "INSERT INTO produk (nama_produk, kategori, harga, no_wa, foto, deskripsi) VALUES (?, ?, ?, ?, ?, ?)";
         db.query(sql, [nama_produk, kategori, parseInt(harga), no_wa, daftarFoto, deskripsi], (err) => {
             if (err) return res.status(500).send("Gagal menyimpan.");
@@ -144,23 +92,11 @@ export default (db) => {
         });
     });
 
-    // --- RUTE HAPUS PRODUK ---
     router.delete('/api/produk/:id', cekLogin, (req, res) => {
         const id = req.params.id;
-        db.query("SELECT foto FROM produk WHERE id = ?", [id], (err, results) => {
+        db.query("DELETE FROM produk WHERE id = ?", [id], (err) => {
             if (err) return res.status(500).json(err);
-            if (results.length > 0 && results[0].foto) {
-                results[0].foto.split(',').forEach(f => {
-                    const p = path.join(process.cwd(), 'public/img/produk', f.trim());
-                    if (fs.existsSync(p)) {
-                        try { fs.unlinkSync(p); } catch(e) { console.log("Gagal hapus file:", p); }
-                    }
-                });
-            }
-            db.query("DELETE FROM produk WHERE id = ?", [id], (err) => {
-                if (err) return res.status(500).json(err);
-                res.status(200).send("Berhasil dihapus");
-            });
+            res.status(200).send("Berhasil dihapus");
         });
     });
 
