@@ -47,25 +47,45 @@ export default (db) => {
         });
     });
 
-    // --- API DATA PRODUK (Update dengan Filter Kategori) ---
-router.get('/api/produk', (req, res) => {
-    const kategori = req.query.kategori; // Menangkap kategori dari URL (misal: ?kategori=UMKM)
+    // --- API DATA PRODUK ---
+    router.get('/api/produk', (req, res) => {
+        const kategori = req.query.kategori;
+        let sql = "SELECT * FROM produk";
+        let params = [];
 
-    let sql = "SELECT * FROM produk";
-    let params = [];
+        if (kategori && kategori !== 'undefined') {
+            sql += " WHERE kategori = ? ORDER BY id DESC";
+            params.push(kategori);
+        } else {
+            sql += " ORDER BY id DESC";
+        }
 
-    if (kategori && kategori !== 'undefined') {
-        sql += " WHERE kategori = ? ORDER BY id DESC";
-        params.push(kategori);
-    } else {
-        sql += " ORDER BY id DESC";
-    }
-
-    db.query(sql, params, (err, results) => {
-        if (err) return res.status(500).json(err);
-        res.json(results);
+        db.query(sql, params, (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results);
+        });
     });
-});
+
+    // ==========================================
+    // --- API DATA STRUKTUR (PERBAIKAN 404) ---
+    // ==========================================
+    router.get('/api/struktur/:id', (req, res) => {
+        const id = req.params.id;
+        const sql = "SELECT * FROM struktur WHERE id = ?";
+        db.query(sql, [id], (err, results) => {
+            if (err) return res.status(500).json(err);
+            if (results.length === 0) return res.status(404).json({ message: "Data tidak ditemukan" });
+            res.json(results[0]);
+        });
+    });
+
+    router.get('/api/struktur', (req, res) => {
+        const sql = "SELECT * FROM struktur ORDER BY id ASC";
+        db.query(sql, (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results);
+        });
+    });
 
     // --- RUTE KATEGORI & BERITA ---
     router.get(['/kategori/:nama', '/berita-:nama', '/baca-berita/:id'], (req, res) => {
@@ -98,16 +118,14 @@ router.get('/api/produk', (req, res) => {
         });
     });
 
-    // --- RUTE HAPUS PRODUK (TAMBAHAN BARU) ---
+    // --- RUTE HAPUS PRODUK ---
     router.delete('/api/produk/:id', cekLogin, (req, res) => {
         const id = req.params.id;
 
-        // 1. Ambil nama file foto dari DB
         db.query("SELECT foto FROM produk WHERE id = ?", [id], (err, results) => {
             if (err) return res.status(500).json(err);
             if (results.length === 0) return res.status(404).send("Produk tidak ditemukan");
 
-            // 2. Hapus file fisik di folder public/img/produk
             if (results[0].foto) {
                 const fotoArray = results[0].foto.split(',');
                 fotoArray.forEach(namaFile => {
@@ -118,7 +136,6 @@ router.get('/api/produk', (req, res) => {
                 });
             }
 
-            // 3. Hapus data dari database
             db.query("DELETE FROM produk WHERE id = ?", [id], (err) => {
                 if (err) return res.status(500).json(err);
                 console.log(`✅ Produk ID ${id} berhasil dihapus.`);
