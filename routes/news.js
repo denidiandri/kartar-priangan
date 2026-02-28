@@ -27,7 +27,8 @@ export default (db, upload) => {
     });
 
     // --- FITUR BERITA ---
-    // Ambil semua berita
+    
+    // 1. Ambil semua berita (Untuk Home & Daftar Berita)
     router.get('/api/berita', (req, res) => {
         db.query("SELECT * FROM berita ORDER BY id DESC", (err, results) => {
             if (err) return res.status(500).json(err);
@@ -35,7 +36,17 @@ export default (db, upload) => {
         });
     });
 
-    // Ambil satu berita (untuk modal edit)
+    // 2. Ambil berita berdasarkan kategori (FIX UNTUK LOKER/KEGIATAN)
+    router.get('/api/berita/kategori/:kat', (req, res) => {
+        const kategori = req.params.kat;
+        const sql = "SELECT * FROM berita WHERE kategori = ? ORDER BY id DESC";
+        db.query(sql, [kategori], (err, results) => {
+            if (err) return res.status(500).json([]);
+            res.json(results || []);
+        });
+    });
+
+    // 3. Ambil satu berita detail (Untuk modal edit)
     router.get('/api/berita/:id', (req, res) => {
         const id = req.params.id;
         db.query("SELECT * FROM berita WHERE id = ?", [id], (err, results) => {
@@ -44,7 +55,7 @@ export default (db, upload) => {
         });
     });
 
-    // Proses Tambah Berita
+    // 4. Proses Tambah Berita
     router.post('/tambah-berita', cekLogin, upload.single('gambar'), (req, res) => {
         const { judul, isi, kategori } = req.body; 
         const gambar = req.file ? `/images/${req.file.filename}` : '';
@@ -56,7 +67,7 @@ export default (db, upload) => {
         });
     });
 
-    // Proses Update Berita (Diubah ke POST & URL disingkat agar sinkron)
+    // 5. Proses Update Berita
     router.post('/api/berita/:id', cekLogin, (req, res) => {
         const { id } = req.params;
         const { judul, kategori, isi } = req.body;
@@ -66,7 +77,7 @@ export default (db, upload) => {
         });
     });
 
-    // Hapus Berita
+    // 6. Hapus Berita
     router.get('/hapus-berita/:id', cekLogin, (req, res) => {
         const id = req.params.id;
         db.query("SELECT gambar FROM berita WHERE id = ?", [id], (err, results) => {
