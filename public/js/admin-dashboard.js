@@ -146,7 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 kategori: document.getElementById('edit-kategori').value,
                 isi: document.getElementById('edit-isi').value
             };
-            fetch(`/api/berita/edit/${id}`, {
+            // PERBAIKAN: Hapus "/edit" agar sesuai dengan backend web.js
+            fetch(`/api/berita/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -164,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 nama: document.getElementById('edit-struktur-nama').value,
                 jabatan: document.getElementById('edit-struktur-jabatan').value
             };
-            fetch(`/api/struktur/edit/${id}`, {
+            // PERBAIKAN: Hapus "/edit" agar sesuai dengan backend web.js
+            fetch(`/api/struktur/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -177,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     muatBeritaAdmin();
     muatStrukturAdmin();
 
-    // Load Settings & Saran (Sisa kode kamu sudah ok)
+    // Load Settings & Saran
     fetch('/api/settings').then(res => res.json()).then(data => {
         if(data) {
             document.getElementById('set-alamat').value = data.alamat || '';
