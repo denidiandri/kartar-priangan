@@ -16,16 +16,28 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// --- KONFIGURASI MULTER (Wajib Ada Buat Upload Gambar) ---
+// 1. MIDDLEWARE DASAR (Hanya Sekali)
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+
+// 2. SESSION (Pake settingan paling stabil buat cPanel)
+app.set('trust proxy', 1); // Tambahan agar session stabil di hosting
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'kartar-priangan-rahasia',
+    resave: true, 
+    saveUninitialized: true,
+    cookie: { 
+        maxAge: 3600000, 
+        secure: false, // Wajib false kalau belum HTTPS
+        httpOnly: true
+    }
+}));
+
+// 3. KONFIGURASI MULTER
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        let dir = 'public/img/produk/'; 
-        if (file.fieldname === 'gambar') {
-            dir = 'public/images/';
-        }
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
+        let dir = file.fieldname === 'gambar' ? 'public/images/' : 'public/img/produk/';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
     filename: (req, file, cb) => {
@@ -35,27 +47,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- MIDDLEWARE UTAMA ---
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
-
-// --- SESSION CONFIG ---
-app.set('trust proxy', 1); 
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'kartar-priangan-rahasia',
-    resave: false,
-    saveUninitialized: false, 
-    proxy: true,
-    name: 'kartar_sid',
-    cookie: { 
-        maxAge: 3600000,
-        secure: false,
-        httpOnly: true,
-        sameSite: 'lax'
-    }
-}));
-
-// --- DATABASE CONNECTION ---
+// 4. DATABASE
 const db = mysql.createPool({
     host: process.env.DB_HOST || 'localhost', 
     user: process.env.DB_USER || 'root',
@@ -66,19 +58,16 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// --- PENGGUNAAN ROUTES (URUTAN TERBAIK) ---
-
-// 1. News & API Dulu (Sertakan 'upload' agar bisa post gambar)
-app.use('/', newsRoutes(db, upload)); 
+// 5. ROUTES (Prioritaskan API sebelum Static File)
 app.use('/', authRoutes(db));
+app.use('/', newsRoutes(db, upload)); 
 
-// 2. File Statis (CSS, JS, Images)
+// File Statis ditaruh di sini agar tidak memblokir rute API
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 3. Web Routes (Halaman HTML)
 app.use('/', webRoutes(db)); 
 
-// --- JARING PENGAMAN 404 ---
+// 6. 404
 app.use((req, res) => {
     res.status(404).send(`Halaman tidak ketemu!`);
 });

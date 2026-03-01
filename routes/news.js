@@ -15,14 +15,15 @@ export default (db, upload) => {
         const { nama, isi_saran } = req.body;
         db.query("INSERT INTO saran (nama, isi_saran) VALUES (?, ?)", [nama, isi_saran], (err) => {
             if (err) return res.status(500).send("Gagal mengirim saran");
-            res.send("<script>alert('Saran sudah kami terima!'); window.location.href='/kritik';</script>");
+            // Ganti alert script ke redirect agar stabil
+            res.redirect('/kritik?status=sent');
         });
     });
 
     router.get('/api/saran', (req, res) => {
         db.query("SELECT * FROM saran ORDER BY id DESC", (err, results) => {
             if (err) return res.status(500).json(err);
-            res.json(results);
+            res.json(results || []);
         });
     });
 
@@ -82,7 +83,8 @@ export default (db, upload) => {
         
         db.query(query, [judul, isi, gambar, kategori], (err) => {
             if (err) return res.status(500).send("Gagal menambah berita.");
-            res.send("<script>alert('Berita berhasil dipublish!'); window.location.href='/admin-dashboard';</script>");
+            // Gunakan redirect murni
+            res.redirect('/admin-dashboard?status=published');
         });
     });
 
@@ -100,11 +102,15 @@ export default (db, upload) => {
     router.get('/hapus-berita/:id', cekLogin, (req, res) => {
         const id = req.params.id;
         db.query("SELECT gambar FROM berita WHERE id = ?", [id], (err, results) => {
-            if (results.length > 0 && results[0].gambar) {
-                const pathFisik = path.join(__dirname, '..', 'public', results[0].gambar);
+            if (results && results.length > 0 && results[0].gambar) {
+                // Hapus awalan '/' agar path.join bekerja dengan benar
+                const cleanPath = results[0].gambar.startsWith('/') ? results[0].gambar.substring(1) : results[0].gambar;
+                const pathFisik = path.join(__dirname, '..', 'public', cleanPath);
                 if (fs.existsSync(pathFisik)) fs.unlinkSync(pathFisik);
             }
-            db.query("DELETE FROM berita WHERE id = ?", [id], () => res.redirect('/admin-dashboard?status=deleted'));
+            db.query("DELETE FROM berita WHERE id = ?", [id], () => {
+                res.redirect('/admin-dashboard?status=deleted');
+            });
         });
     });
 

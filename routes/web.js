@@ -3,33 +3,11 @@ const router = express.Router();
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { cekLogin } from '../middleware/authMiddleware.js';
-import multer from 'multer';
-import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// --- KONFIGURASI MULTER ---
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = 'public/img/produk/';
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir); 
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'produk-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const upload = multer({ 
-    storage: storage,
-    limits: { fileSize: 20 * 1024 * 1024 } 
-});
-
-export default (db) => {
+export default (db, upload) => {
 
     // --- 1. RUTE HALAMAN STATIS (DEPAN) ---
     router.get('/', (req, res) => res.sendFile(path.join(__dirname, '../views/index.html')));
@@ -41,7 +19,6 @@ export default (db) => {
     router.get('/lapak', (req, res) => res.sendFile(path.join(__dirname, '../views/lapak.html')));
 
     // --- 2. RUTE ADMIN (WAJIB PAKAI cekLogin) ---
-    // Pastikan file admin-dashboard.html ada di folder /views/
     router.get('/admin-dashboard', cekLogin, (req, res) => {
         res.sendFile(path.join(__dirname, '../views/admin-dashboard.html'));
     });
@@ -88,6 +65,7 @@ export default (db) => {
         const sql = "INSERT INTO produk (nama_produk, kategori, harga, no_wa, foto, deskripsi) VALUES (?, ?, ?, ?, ?, ?)";
         db.query(sql, [nama_produk, kategori, parseInt(harga), no_wa, daftarFoto, deskripsi], (err) => {
             if (err) return res.status(500).send("Gagal menyimpan.");
+            // Pakai redirect biasa biar session gak putus
             res.redirect('/admin-dashboard?status=success'); 
         });
     });
