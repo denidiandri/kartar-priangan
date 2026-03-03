@@ -1,5 +1,5 @@
 import express from 'express';
-import 'dotenv/config'; 
+import dotenv from 'dotenv';
 import mysql from 'mysql2';
 import path from 'path';
 import { fileURLToPath } from 'url';
