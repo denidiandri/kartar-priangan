@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error("Gagal muat produk:", err));
     };
 
-    // Load Berita
+    // Load Berita (DIPERBAIKI: URL diganti ke /api/berita-semua)
     window.muatBeritaAdmin = function() {
-        fetch('/api/berita').then(res => res.json()).then(data => {
+        fetch('/api/berita-semua').then(res => res.json()).then(data => {
             const t = document.getElementById('tabel-berita');
             if(!t) return;
             t.innerHTML = '';
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                 </tr>`;
             });
-        });
+        }).catch(err => console.error("Gagal muat berita:", err));
     };
 
     // Load Struktur
@@ -120,23 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. FUNGSI HAPUS ---
 
-    window.hapusProduk = function(id) {
-        if(confirm('Hapus produk ini?')) {
-            fetch(`/api/produk/${id}`, { method: 'DELETE' })
-                .then(res => { if(res.ok) location.reload(); });
-        }
-    };
+   window.hapusProduk = function(id) {
+    if(confirm('Hapus produk ini?')) {
+        window.location.href = `/api/hapus-produk/${id}`;
+    }
+};
 
+    // DIPERBAIKI: Mengarah ke jalur /api/ sesuai news.js
     window.hapusBerita = function(id) {
-        if(confirm('Hapus berita ini?')) window.location.href = `/hapus-berita/${id}`;
+        if(confirm('Hapus berita ini?')) window.location.href = `/api/hapus-berita/${id}`;
     };
 
     window.hapusStruktur = function(id) {
-        if(confirm('Hapus anggota pengurus ini?')) window.location.href = `/hapus-struktur/${id}`;
+        if(confirm('Hapus anggota pengurus ini?')) window.location.href = `/api/hapus-struktur/${id}`;
     };
 
     window.hapusSaran = function(id) {
-        if(confirm('Hapus pesan saran ini?')) window.location.href = `/hapus-saran/${id}`;
+        if(confirm('Hapus pesan saran ini?')) window.location.href = `/api/hapus-saran/${id}`;
     };
 
     // --- 5. HANDLE SUBMIT FORM EDIT ---
@@ -152,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 kategori: document.getElementById('edit-kategori').value,
                 isi: document.getElementById('edit-isi').value
             };
-            // Menggunakan POST agar tidak diblokir hosting
             fetch(`/api/berita/${id}`, {
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
@@ -174,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 nama: document.getElementById('edit-struktur-nama').value,
                 jabatan: document.getElementById('edit-struktur-jabatan').value
             };
-            // Menggunakan POST agar tidak diblokir hosting
             fetch(`/api/struktur/${id}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

@@ -19,7 +19,7 @@ async function fetchHomeNews() {
             const kategoriSafe = (item.kategori || 'Umum').toUpperCase();
             const isiSafe = (item.isi || '').substring(0, 80);
             const gambarSafe = item.gambar || '/images/default-news.jpg';
-
+ 
             container.innerHTML += `
                 <div class="news-card">
                     <div class="news-img-box">
