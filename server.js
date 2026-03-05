@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import session from 'express-session';
 import multer from 'multer';
 import fs from 'fs';
+dotenv.config(); //
 
 // --- IMPORT ROUTES ---
 import authRoutes from './routes/auth.js'; 

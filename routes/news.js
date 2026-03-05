@@ -30,7 +30,7 @@ export default (db, upload) => {
         });
     });
 
-    // Ambil Kategori Spesifik (Taruh SEBELUM /berita/:id)
+    // Ambil Kategori Spesifik
     router.get('/berita/kategori/:slug', (req, res) => {
         const slug = req.params.slug;
         db.query("SELECT * FROM berita WHERE kategori = ? ORDER BY id DESC", [slug], (err, results) => {
@@ -47,7 +47,7 @@ export default (db, upload) => {
         });
     });
 
-    // Ambil Detail Berita Pakai ID (Paling bawah dari kelompok berita agar tidak bentrok)
+    // Ambil Detail Berita Pakai ID
     router.get('/berita/:id', (req, res) => {
         const id = req.params.id;
         db.query("SELECT * FROM berita WHERE id = ?", [id], (err, results) => {
@@ -59,35 +59,37 @@ export default (db, upload) => {
     // Rute Settings & Struktur (Publik)
     router.get('/settings', (req, res) => {
         db.query("SELECT * FROM settings WHERE id = 1", (err, results) => {
-            res.json(results[0] || {});
+            if (err) return res.status(500).json({});
+            res.json(results?.[0] || {});
         });
     });
 
     router.get('/struktur-semua', (req, res) => {
         db.query("SELECT * FROM struktur ORDER BY id", (err, results) => {
+            if (err) return res.status(500).json([]);
             res.json(results || []);
         });
     });
 
     router.get('/produk-semua', (req, res) => {
-    const query = "SELECT * FROM produk ORDER BY id DESC";
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error("Gagal ambil produk:", err);
-            return res.status(500).json([]);
-        }
-        res.json(results);
+        const query = "SELECT * FROM produk ORDER BY id DESC";
+        db.query(query, (err, results) => {
+            if (err) {
+                console.error("Gagal ambil produk:", err);
+                return res.status(500).json([]);
+            }
+            res.json(results);
+        });
     });
-});
 
-// Rute Kategori Produk
-router.get('/produk/kategori/:kat', (req, res) => {
-    const query = "SELECT * FROM produk WHERE kategori = ? ORDER BY id DESC";
-    db.query(query, [req.params.kat], (err, results) => {
-        if (err) return res.status(500).json([]);
-        res.json(results);
+    // Rute Kategori Produk
+    router.get('/produk/kategori/:kat', (req, res) => {
+        const query = "SELECT * FROM produk WHERE kategori = ? ORDER BY id DESC";
+        db.query(query, [req.params.kat], (err, results) => {
+            if (err) return res.status(500).json([]);
+            res.json(results);
+        });
     });
-});
 
     // ==========================================
     // 2. RUTE ADMIN (Pakai cekLogin)
@@ -95,14 +97,17 @@ router.get('/produk/kategori/:kat', (req, res) => {
 
     router.get('/saran', cekLogin, (req, res) => {
         db.query("SELECT * FROM saran ORDER BY id DESC", (err, results) => {
+            if (err) return res.status(500).json([]);
             res.json(results || []);
         });
     });
 
     router.post('/tambah-berita', cekLogin, upload.single('gambar'), (req, res) => {
         const { judul, isi, kategori } = req.body; 
+        // Konsisten gunakan path /images/
         const gambar = req.file ? `/images/${req.file.filename}` : '';
         db.query("INSERT INTO berita (judul, isi, gambar, kategori) VALUES (?, ?, ?, ?)", [judul, isi, gambar, kategori], (err) => {
+            if (err) return res.status(500).send("Gagal tambah berita");
             res.redirect('/admin-dashboard?status=published');
         });
     });
@@ -116,7 +121,7 @@ router.get('/produk/kategori/:kat', (req, res) => {
     });
 
     router.get('/hapus-berita/:id', cekLogin, (req, res) => {
-        db.query("DELETE FROM berita WHERE id = ?", [req.params.id], () => {
+        db.query("DELETE FROM berita WHERE id = ?", [req.params.id], (err) => {
             res.redirect('/admin-dashboard?status=deleted');
         });
     });
@@ -124,15 +129,17 @@ router.get('/produk/kategori/:kat', (req, res) => {
     // Produk & Struktur Admin
     router.post('/tambah-produk', cekLogin, upload.array('foto', 5), (req, res) => {
         const { nama_produk, kategori, harga, no_wa, deskripsi } = req.body;
+        // Gunakan path /images/ agar seragam di semua rute
         const fotoPaths = req.files ? req.files.map(f => `/images/${f.filename}`).join(',') : '';
         db.query("INSERT INTO produk (nama_produk, kategori, harga, no_wa, foto, deskripsi) VALUES (?, ?, ?, ?, ?, ?)", 
         [nama_produk, kategori, harga, no_wa, fotoPaths, deskripsi], (err) => {
+            if (err) return res.status(500).send("Gagal tambah produk");
             res.redirect('/admin-dashboard?status=product_added');
         });
     });
 
     router.get('/hapus-produk/:id', cekLogin, (req, res) => {
-        db.query("DELETE FROM produk WHERE id = ?", [req.params.id], () => {
+        db.query("DELETE FROM produk WHERE id = ?", [req.params.id], (err) => {
             res.redirect('/admin-dashboard?status=deleted');
         });
     });
@@ -141,12 +148,13 @@ router.get('/produk/kategori/:kat', (req, res) => {
         const { nama, jabatan } = req.body;
         const foto = req.file ? `/images/${req.file.filename}` : '';
         db.query("INSERT INTO struktur (nama, jabatan, foto) VALUES (?, ?, ?)", [nama, jabatan, foto], (err) => {
+            if (err) return res.status(500).send("Gagal tambah struktur");
             res.redirect('/admin-dashboard?status=member_added');
         });
     });
 
     router.get('/hapus-struktur/:id', cekLogin, (req, res) => {
-        db.query("DELETE FROM struktur WHERE id = ?", [req.params.id], () => {
+        db.query("DELETE FROM struktur WHERE id = ?", [req.params.id], (err) => {
             res.redirect('/admin-dashboard?status=deleted');
         });
     });
@@ -155,6 +163,7 @@ router.get('/produk/kategori/:kat', (req, res) => {
         const { visi, misi, alamat, whatsapp, email, maps_link, sosmed } = req.body;
         db.query("UPDATE settings SET visi=?, misi=?, alamat=?, whatsapp=?, email=?, maps_link=?, sosmed=? WHERE id=1", 
         [visi, misi, alamat, whatsapp, email, maps_link, sosmed], (err) => {
+            if (err) return res.status(500).send("Gagal update settings");
             res.redirect('/admin-dashboard?status=settings_updated');
         });
     });
