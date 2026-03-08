@@ -35,4 +35,41 @@ async function loadContactInfo() {
     }
 }
 
+// --- KODE BARU: KIRIM FORM KONTAK KE DATABASE ---
+const formSaran = document.getElementById('contact-form'); // Pastikan ID form di HTML lo adalah 'contact-form'
+
+if (formSaran) {
+    formSaran.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Ambil data dari input
+        const formData = {
+            nama: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            subjek: document.getElementById('subject').value,
+            pesan: document.getElementById('message').value
+        };
+
+        try {
+            const response = await fetch('/api/kirim-saran', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Pesan Anda berhasil dikirim!');
+                formSaran.reset(); // Kosongkan form setelah sukses
+            } else {
+                alert('Gagal mengirim pesan: ' + (result.error || 'Server error'));
+            }
+        } catch (error) {
+            console.error('Error saat kirim saran:', error);
+            alert('Terjadi kesalahan koneksi ke server.');
+        }
+    });
+}
+
 loadContactInfo();

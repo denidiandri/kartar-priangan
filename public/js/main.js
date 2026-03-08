@@ -63,12 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
         const authMenu = document.getElementById('menu-admin') || document.getElementById('menu-auth');
         if (authMenu && data.isLoggedIn) {
-    authMenu.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; border: 1px solid #ffcc00;">
-            <a href="/admin-dashboard" style="color: #ffcc00; font-weight: bold; text-decoration: none; font-size: 0.9rem;">ADMIN</a>
-            <span style="color: #ccc;">|</span>
-            <a href="/logout" style="color: #ff4d4d; text-decoration: none; font-size: 0.8rem; font-weight: bold;">LOGOUT</a>
-        </div>
+        authMenu.innerHTML = `
+                <a href="/admin-dashboard">DASHBOARD</a>
+            </div>
     `;
 }   })
     .catch(err => console.error("Gagal cek status login:", err));

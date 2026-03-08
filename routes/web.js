@@ -46,7 +46,7 @@ export default (db) => {
 
     // --- 3. RUTE BACA BERITA (Halaman) ---
     router.get('/kategori/:nama', (req, res) => res.sendFile(path.join(__dirname, '../views/kategori.html')));
-    router.get('/baca-berita/:id', (req, res) => res.sendFile(path.join(__dirname, '../views/baca.html')));
+    router.get('/baca-berita/:id', (req, res) => res.sendFile(path.join(__dirname, '../views/kategori.html')));
 
     // --- 4. PROSES CRUD PRODUK ---
     router.post('/tambah-produk', cekLogin, upload.array('foto', 5), (req, res) => {

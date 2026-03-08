@@ -1,20 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. KODE NAVIGASI & DROPDOWN ---
-    const hamburger = document.getElementById('hamburger-btn');
-    const nav = document.getElementById('nav-menu');
-    const dropdowns = document.querySelectorAll('.dropdown');
-
-    if (hamburger) {
-        hamburger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            nav.classList.toggle('active');
-        });
-    }
-
-    document.addEventListener('click', () => {
-        if (nav) nav.classList.remove('active');
-        dropdowns.forEach(dd => dd.classList.remove('show'));
-    });
+    // --- 1. KODE NAVIGASI (DIBERSIHKAN AGAR TIDAK BENTROK DENGAN MAIN.JS) ---
+    // Logika navigasi sudah ada di main.js, jadi di sini kita hapus agar tidak double action.
 
     // --- 2. KODE BERITA ---
     const path = window.location.pathname;
@@ -103,12 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const katSafe = (i.kategori || 'umum').toLowerCase();
                     
                     // Fungsi hapus tag HTML biar deskripsi bersih
-                    const ringkasan = i.isi.replace(/<[^>]*>?/gm, '').substring(0, 100);
+                    const ringkasan = i.isi ? i.isi.replace(/<[^>]*>?/gm, '').substring(0, 100) : '';
 
                     const tombolWA = (katSafe === 'loker') ? `
                         <a href="https://wa.me/6282315483006?text=Halo%20Admin%2C%20saya%20tertarik%20loker%3A%20*${i.judul}*" 
-                           class="btn-wa-loker" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #25d366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 0.8rem;">
-                           <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="16" style="margin-right: 8px;"> Kirim CV
+                            class="btn-wa-loker" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #25d366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 0.8rem;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="16" style="margin-right: 8px;"> Kirim CV
                         </a>
                     ` : '';
 

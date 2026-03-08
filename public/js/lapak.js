@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let apiUrl = '/api/produk-semua'; 
-if (kategori) {
-    apiUrl = `/api/produk/kategori/${encodeURIComponent(kategori)}`;
-}
+    if (kategori) {
+        apiUrl = `/api/produk/kategori/${encodeURIComponent(kategori)}`;
+    }
 
     fetch(apiUrl)
         .then(res => res.json())
@@ -27,53 +27,59 @@ if (kategori) {
             window.dataLapak = data;
 
             container.innerHTML = data.map((p, index) => {
-    const fotoArray = p.foto ? p.foto.split(',') : [];
-    let namaFile = fotoArray[0] ? fotoArray[0].trim() : '';
+                const fotoArray = p.foto ? p.foto.split(',') : [];
+                let namaFileRaw = fotoArray[0] ? fotoArray[0].trim() : '';
 
-    // Karena folder lo adalah public/img/produk/
-    // Dan database lo mungkin nyimpen path lengkap, kita bersihkan:
-    let fotoUtama = namaFile.replace('public/', '/');
-    
-    // Kalau database cuma nyimpen nama file (misal: produk-xxx.png)
-    if (!fotoUtama.startsWith('/')) {
-        fotoUtama = `/img/produk/${fotoUtama}`;
-    }
+                // --- OPTIMASI PATH FOTO (MENGGUNAKAN GETPATH AGAR SINKRON) ---
+                let fotoUtama = getPath(namaFileRaw);
+                
+                // Tambahkan cache breaker agar gambar selalu update jika ada perubahan
+                const finalImg = `${fotoUtama}?v=${Date.now()}`;
 
-    return `
-    <div class="produk-card" onclick="bukaDetail(${index})">
-        <div class="img-wrapper">
-            <img src="${fotoUtama}" alt="${p.nama_produk}" class="produk-img" onerror="this.src='/images/logokartar.png'">
-        </div>
-        <div class="info">
-            <h3>${p.nama_produk}</h3>
-            <p class="harga">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</p>
-            <button class="button-beli">Lihat Detail</button>
-        </div>
-    </div>`;
-}).join('');
+                return `
+                <div class="produk-card" onclick="bukaDetail(${index})">
+                    <div class="img-wrapper">
+                        <img src="${finalImg}" alt="${p.nama_produk}" class="produk-img" onerror="this.src='/images/logokartar.png'">
+                    </div>
+                    <div class="info">
+                        <h3>${p.nama_produk}</h3>
+                        <p class="harga">Rp ${parseInt(p.harga).toLocaleString('id-ID')}</p>
+                        <button class="button-beli">Lihat Detail</button>
+                    </div>
+                </div>`;
+            }).join('');
         })
         .catch(err => console.error('Gagal memuat produk:', err));
 });
 
-function bukaDetail(index) {
-    const p = window.dataLapak[index];
-    const fotoArray = p.foto ? p.foto.split(',') : [];
-    
-    // Fungsi bantu untuk fix path di dalam modal
-   const getPath = (img) => {
+// Fungsi bantu untuk fix path di dalam modal agar konsisten
+const getPath = (img) => {
     if (!img) return '/images/logokartar.png';
+    
     let path = img.trim();
 
-    // 1. Buang "public/" kalau ada
-    path = path.replace('public/', '/');
+    // 1. Buang 'public/' jika ada di awal
+    path = path.replace(/^public\//, '/');
 
-    // 2. Kalau path tidak diawali "/" atau "http", tambahkan folder produk
+    // 2. Jika di database tertulis '/images/produk-xxx', 
+    // kita ambil nama filenya saja dan pindahkan ke folder yang benar (/img/produk/)
+    if (path.includes('/images/')) {
+        const namaFile = path.split('/').pop(); 
+        return `/img/produk/${namaFile}`; 
+    }
+
+    // 3. Jika hanya nama file saja (tidak diawali /), arahkan ke folder produk
     if (!path.startsWith('/') && !path.startsWith('http')) {
         return `/img/produk/${path}`;
     }
 
     return path;
 };
+
+function bukaDetail(index) {
+    const p = window.dataLapak[index];
+    const fotoArray = p.foto ? p.foto.split(',') : [];
+    
     const modal = document.createElement('div');
     modal.className = 'modal-detail-overlay'; 
     
@@ -105,7 +111,7 @@ function bukaDetail(index) {
                     <a href="https://wa.me/${p.no_wa}?text=Halo, saya tertarik dengan produk *${p.nama_produk}*" 
                        target="_blank" class="btn-wa-modal" 
                        style="display: block; text-align: center; background: #25d366; color: white; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px;">
-                       Pesan via WhatsApp
+                        Pesan via WhatsApp
                     </a>
                 </div>
             </div>
