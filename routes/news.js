@@ -169,6 +169,28 @@ router.get('/struktur/:id', (req, res) => {
     });
 });
 
+// Tambahkan struktur
+router.post('/tambah-struktur', cekLogin, upload.single('foto'), (req, res) => {
+    // Sekarang req.body tidak akan undefined lagi karena diproses oleh Multer
+    const { nama, jabatan } = req.body;
+    
+    // Ambil path foto jika ada
+    const foto = req.file ? `/images/${req.file.filename}` : '';
+
+    if (!nama || !jabatan) {
+        return res.status(400).send("Nama dan Jabatan wajib diisi.");
+    }
+
+    const query = "INSERT INTO struktur (nama, jabatan, foto) VALUES (?, ?, ?)";
+    db.query(query, [nama, jabatan, foto], (err, result) => {
+        if (err) {
+            console.error("Gagal Tambah Struktur:", err);
+            return res.status(500).send("Gagal menyimpan ke database.");
+        }
+        res.redirect('/admin-dashboard?status=structure_added');
+    });
+});
+
 // 2. Proses Update Data Struktur (Ke /api/struktur/update)
 router.post('/struktur/update', (req, res) => {
     const { id, nama, jabatan } = req.body;
