@@ -26,14 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const katSafe = (i.kategori || 'umum').toLowerCase();
                     const tombolWA = (katSafe === 'loker') ? `
-                        <div style="margin: 20px 0;">
-                            <a href="https://wa.me/6282315483006?text=Halo%20Admin%20Kartar%2C%20saya%20ingin%20melamar%3A%20*${i.judul}*" 
-                               class="btn-wa-loker" target="_blank" style="display: inline-flex; align-items: center; background: #25d366; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-                               <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" style="margin-right: 10px;"> 
-                               Kirim CV Ke Admin via WhatsApp
-                            </a>
-                        </div>
-                    ` : '';
+    <div style="margin: 20px 0;">
+        <a href="https://forms.gle/D13C9qY4qv8yNUsJA" 
+           class="btn-wa-loker" target="_blank" style="display: inline-flex; align-items: center; background: #4285f4; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+           <img src="https://www.gstatic.com/images/branding/product/1x/forms_2020q4_48dp.png" width="20" style="margin-right: 10px;"> 
+           Isi Formulir Pendaftaran Loker
+        </a>
+    </div>
+` : '';
 
                     container.innerHTML = `
                         <div class="read-news-wrapper">
@@ -92,11 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const ringkasan = i.isi ? i.isi.replace(/<[^>]*>?/gm, '').substring(0, 100) : '';
 
                     const tombolWA = (katSafe === 'loker') ? `
-                        <a href="https://wa.me/6282315483006?text=Halo%20Admin%2C%20saya%20tertarik%20loker%3A%20*${i.judul}*" 
-                            class="btn-wa-loker" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #25d366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 0.8rem;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="16" style="margin-right: 8px;"> Kirim CV
-                        </a>
-                    ` : '';
+    <a href="https://forms.gle/D13C9qY4qv8yNUsJA" 
+        class="btn-wa-loker" target="_blank" style="display: flex; align-items: center; justify-content: center; background: #4285f4; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; font-size: 0.8rem;">
+        <img src="https://www.gstatic.com/images/branding/product/1x/forms_2020q4_48dp.png" width="16" style="margin-right: 8px;">Isi Formulir Pendaftaran Loker
+    </a>
+` : '';
 
                     container.innerHTML += `
                         <div class="news-card">
